@@ -11,25 +11,23 @@
 #include "../Sensor/SensorOdometry/OdometryReading.h"
 #include "../Sensor/SensorRange/RangeReading.h"
 
-namespace NS_GMapping
-{
-  
-  class SensorLog: public std::list<SensorReading*>
-  {
-  public:
-    SensorLog (const SensorMap&);
-    ~SensorLog ();
-    std::istream&
-    load (std::istream& is);
-    OrientedPoint
-    boundingBox (double& xmin, double& ymin, double& xmax, double& ymax) const;
-  protected:
-    const SensorMap& m_sensorMap;
-    OdometryReading*
-    parseOdometry (std::istream& is, const OdometrySensor*) const;
-    RangeReading*
-    parseRange (std::istream& is, const RangeSensor*) const;
-  };
+namespace NS_GMapping {
+
+class SensorLog: public std::list<SensorReading*> {
+public:
+	SensorLog(const SensorMap&);
+	~SensorLog();
+	std::istream&
+	load(std::istream& is);
+	OrientedPoint
+	boundingBox(double& xmin, double& ymin, double& xmax, double& ymax) const;
+protected:
+	const SensorMap& m_sensorMap;
+	OdometryReading*
+	parseOdometry(std::istream& is, const OdometrySensor*) const;
+	RangeReading*
+	parseRange(std::istream& is, const RangeSensor*) const;
+};
 
 }
 ;

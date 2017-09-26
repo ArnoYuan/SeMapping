@@ -6,24 +6,22 @@
 
 #include "../Utils/Point.h"
 
-namespace NS_GMapping
-{
-  
-  template<class NUMERIC>
-    class OrientedBoundingBox
-    {
-      
-    public:
-      OrientedBoundingBox (std::vector<point<NUMERIC> > p);
-      double
-      area ();
+namespace NS_GMapping {
 
-    protected:
-      Point ul;
-      Point ur;
-      Point ll;
-      Point lr;
-    };
+template<class NUMERIC>
+class OrientedBoundingBox {
+
+public:
+	OrientedBoundingBox(std::vector<point<NUMERIC> > p);
+	double
+	area();
+
+protected:
+	Point ul;
+	Point ur;
+	Point ll;
+	Point lr;
+};
 
 #include "OrientedBoundingBox.hxx"
 

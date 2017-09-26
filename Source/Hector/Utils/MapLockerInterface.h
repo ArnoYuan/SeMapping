@@ -1,13 +1,12 @@
 #ifndef _MAP_LOCK_INTERFACE_
 #define _MAP_LOCK_INTERFACE_
 
-class MapLockerInterface
-{
+class MapLockerInterface {
 public:
-  virtual void
-  lockMap () = 0;
-  virtual void
-  unlockMap () = 0;
+	virtual void
+	lockMap() = 0;
+	virtual void
+	unlockMap() = 0;
 };
 
 #endif

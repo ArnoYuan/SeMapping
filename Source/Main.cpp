@@ -11,21 +11,18 @@
 using namespace NS_GMapping;
 //using namespace NS_HectorMapping;
 
-int
-main (int argc, char* argv[])
-{
-  GMappingApplication app;
-  //HectorMappingApplication app;
-  
-  if (!app.initialize (argc, argv))
-  {
-	return -1;
-  }
-  
-  app.run ();
-  
-  app.pending ();
-  
-  return 0;
+int main(int argc, char* argv[]) {
+	GMappingApplication app;
+	//HectorMappingApplication app;
+
+	if (!app.initialize(argc, argv)) {
+		return -1;
+	}
+
+	app.run();
+
+	app.pending();
+
+	return 0;
 }
 

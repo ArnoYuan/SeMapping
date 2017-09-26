@@ -5,21 +5,17 @@
 
 #include "../../Sensor/SensorBase/Sensor.h"
 
-namespace NS_GMapping
-{
-  
-  class OdometrySensor: public Sensor
-  {
-  public:
-    OdometrySensor (const std::string& name, bool ideal = false);
-    inline bool
-    isIdeal () const
-    {
-      return m_ideal;
-    }
-  protected:
-    bool m_ideal;
-  };
+namespace NS_GMapping {
+
+class OdometrySensor: public Sensor {
+public:
+	OdometrySensor(const std::string& name, bool ideal = false);
+	inline bool isIdeal() const {
+		return m_ideal;
+	}
+protected:
+	bool m_ideal;
+};
 
 }
 ;

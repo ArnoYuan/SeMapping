@@ -36,118 +36,116 @@
 #include <DataSet/Subscriber.h>
 #include <Service/Client.h>
 
-namespace NS_HectorMapping
-{
-  
-  class HectorMappingApplication: public Application
-  {
-  public:
-    HectorMappingApplication ();
-    virtual
-    ~HectorMappingApplication ();
-  private:
-    HectorDebugInfoInterface* debugInfoProvider;
+namespace NS_HectorMapping {
 
-    HectorDrawings* hectorDrawings;
+class HectorMappingApplication: public Application {
+public:
+	HectorMappingApplication();
+	virtual
+	~HectorMappingApplication();
+private:
+	HectorDebugInfoInterface* debugInfoProvider;
 
-    int lastGetMapUpdateIndex;
+	HectorDrawings* hectorDrawings;
 
-    PoseInfoContainer poseInfoContainer_;
+	int lastGetMapUpdateIndex;
 
-    HectorSlamProcessor* slamProcessor;
-    DataContainer laserScanContainer;
+	PoseInfoContainer poseInfoContainer_;
 
-    Eigen::Vector3f lastSlamPose;
+	HectorSlamProcessor* slamProcessor;
+	DataContainer laserScanContainer;
 
-    void
-    getMapInfo (NS_DataType::OccupancyGrid& map,
-                const NS_HectorMapping::GridMap& gridMap);
+	Eigen::Vector3f lastSlamPose;
 
-    bool
-    pointsToDataContainer (const std::vector<NS_DataType::Point32>& points,
-                           const NS_Transform::StampedTransform& laserTransform,
-                           DataContainer& dataContainer, float scaleToMap);
+	void
+	getMapInfo(NS_DataType::OccupancyGrid& map,
+			const NS_HectorMapping::GridMap& gridMap);
 
-    void
-    projectLaser (const NS_DataType::LaserScan& scan_in,
-                  std::vector<NS_DataType::Point32>& points,
-                  double range_cutoff, bool preservative);
+	bool
+	pointsToDataContainer(const std::vector<NS_DataType::Point32>& points,
+			const NS_Transform::StampedTransform& laserTransform,
+			DataContainer& dataContainer, float scaleToMap);
 
-    const boost::numeric::ublas::matrix<double>&
-    getUnitVectors (double angle_min, double angle_max, double angle_increment,
-                    unsigned int length);
+	void
+	projectLaser(const NS_DataType::LaserScan& scan_in,
+			std::vector<NS_DataType::Point32>& points, double range_cutoff,
+			bool preservative);
 
-    bool
-    laserScanToDataContainer (const NS_DataType::LaserScan& scan,
-                              DataContainer& dataContainer, float scaleToMap);
+	const boost::numeric::ublas::matrix<double>&
+	getUnitVectors(double angle_min, double angle_max, double angle_increment,
+			unsigned int length);
 
-    void
-    updateMap (NS_DataType::OccupancyGrid& map,
-               const NS_HectorMapping::GridMap& gridMap,
-               MapLockerInterface* mapMutex);
+	bool
+	laserScanToDataContainer(const NS_DataType::LaserScan& scan,
+			DataContainer& dataContainer, float scaleToMap);
 
-  private:
-    //Parameters related to publishing the scanmatcher pose directly via tf
-    
-    double update_factor_free_;
-    double update_factor_occupied_;
-    double map_update_distance_threshold_;
-    double map_update_angle_threshold_;
+	void
+	updateMap(NS_DataType::OccupancyGrid& map,
+			const NS_HectorMapping::GridMap& gridMap,
+			MapLockerInterface* mapMutex);
 
-    double map_resolution_;
-    int map_size_;
-    double map_start_x_;
-    double map_start_y_;
-    int map_multi_res_levels_;
+private:
+	//Parameters related to publishing the scanmatcher pose directly via tf
 
-    double map_pub_period_;
+	double update_factor_free_;
+	double update_factor_occupied_;
+	double map_update_distance_threshold_;
+	double map_update_angle_threshold_;
 
-    bool use_tf_scan_transformation_;
-    bool use_tf_pose_start_estimate_;
-    bool map_with_known_poses_;
-    bool timing_output_;
+	double map_resolution_;
+	int map_size_;
+	double map_start_x_;
+	double map_start_y_;
+	int map_multi_res_levels_;
 
-    float sqr_laser_min_dist_;
-    float sqr_laser_max_dist_;
-    float laser_z_min_value_;
-    float laser_z_max_value_;
+	double map_pub_period_;
 
-    double map_update_frequency_;
+	bool use_tf_scan_transformation_;
+	bool use_tf_pose_start_estimate_;
+	bool map_with_known_poses_;
+	bool timing_output_;
 
-  private:
-    std::map<std::string, boost::numeric::ublas::matrix<double>*> unit_vector_map;
-    boost::mutex guv_mutex;
-  private:
-    void
-    loadParameters ();
+	float sqr_laser_min_dist_;
+	float sqr_laser_max_dist_;
+	float laser_z_min_value_;
+	float laser_z_max_value_;
 
-    void
-    laserDataCallback (NS_DataType::LaserScan& laser);
+	double map_update_frequency_;
 
-    void
-    mapService (NS_ServiceType::ServiceMap& srv_map);
+private:
+	std::map<std::string, boost::numeric::ublas::matrix<double>*> unit_vector_map;
+	boost::mutex guv_mutex;
+private:
+	void
+	loadParameters();
 
-    void
-    mapTransformService (NS_ServiceType::ServiceTransform& transform);
+	void
+	laserDataCallback(NS_DataType::LaserScan& laser);
 
-    void
-    updateMapLoop (double frequency);
+	void
+	mapService(NS_ServiceType::ServiceMap& srv_map);
 
-  private:
-    NS_Transform::Transform map_to_odom;
+	void
+	mapTransformService(NS_ServiceType::ServiceTransform& transform);
 
-    NS_Transform::Transform centered_laser_pose;
+	void
+	updateMapLoop(double frequency);
 
-    int laser_count;
+private:
+	NS_Transform::Transform map_to_odom;
 
-    NS_DataType::OccupancyGrid map;
+	NS_Transform::Transform centered_laser_pose;
 
-    boost::mutex map_to_odom_lock;
-    boost::mutex map_lock;
+	int laser_count;
 
-    boost::thread update_map_thread;
+	NS_DataType::OccupancyGrid map;
 
-    NS_Service::Server<NS_ServiceType::ServiceTransform>* map_tf_srv;
+	boost::mutex map_to_odom_lock;
+	boost::mutex map_lock;
+
+	boost::thread update_map_thread;
+
+	NS_Service::Server<NS_ServiceType::ServiceTransform>* map_tf_srv;
 
 	NS_Service::Server<NS_ServiceType::ServiceMap>* map_srv;
 
@@ -155,12 +153,12 @@ namespace NS_HectorMapping
 
 	NS_Service::Client<NS_ServiceType::ServiceTransform>* odom_tf_cli;
 
-  public:
-    virtual void
-    run ();
-    virtual void
-    quit ();
-  };
+public:
+	virtual void
+	run();
+	virtual void
+	quit();
+};
 
 }
 

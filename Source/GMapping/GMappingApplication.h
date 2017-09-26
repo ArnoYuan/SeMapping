@@ -26,116 +26,114 @@
 #include <DataSet/Subscriber.h>
 #include <Service/Client.h>
 
-namespace NS_GMapping
-{
-  
-  class GMappingApplication: public Application
-  {
-  public:
-    GMappingApplication ();
-    virtual
-    ~GMappingApplication ();
-  private:
-    bool up_mounted;
-    double max_range_;
-    double max_u_range_;
-    double minimum_score_;
-    double sigma_;
-    int kernel_size_;
-    double lstep_;
-    double astep_;
-    int iterations_;
-    double lsigma_;
-    double ogain_;
-    int lskip_;
-    double srr_;
-    double srt_;
-    double str_;
-    double stt_;
-    double linear_update_;
-    double angular_update_;
-    double temporal_update_;
-    double resample_threshold_;
-    int particles_;
-    double xmin_;
-    double ymin_;
-    double xmax_;
-    double ymax_;
-    double delta_;
-    double occ_thresh_;
-    double llsamplerange_;
-    double llsamplestep_;
-    double lasamplerange_;
-    double lasamplestep_;
-    int throttle_scans_;
-    NS_NaviCommon::Duration map_update_interval_;
-    unsigned long int seed_;
-  private:
-    void
-    loadParameters ();
+namespace NS_GMapping {
 
-    void
-    laserDataCallback (NS_DataType::LaserScan& laser);
+class GMappingApplication: public Application {
+public:
+	GMappingApplication();
+	virtual
+	~GMappingApplication();
+private:
+	bool up_mounted;
+	double max_range_;
+	double max_u_range_;
+	double minimum_score_;
+	double sigma_;
+	int kernel_size_;
+	double lstep_;
+	double astep_;
+	int iterations_;
+	double lsigma_;
+	double ogain_;
+	int lskip_;
+	double srr_;
+	double srt_;
+	double str_;
+	double stt_;
+	double linear_update_;
+	double angular_update_;
+	double temporal_update_;
+	double resample_threshold_;
+	int particles_;
+	double xmin_;
+	double ymin_;
+	double xmax_;
+	double ymax_;
+	double delta_;
+	double occ_thresh_;
+	double llsamplerange_;
+	double llsamplestep_;
+	double lasamplerange_;
+	double lasamplestep_;
+	int throttle_scans_;
+	NS_NaviCommon::Duration map_update_interval_;
+	unsigned long int seed_;
+private:
+	void
+	loadParameters();
 
-    void
-    mapService (NS_ServiceType::ServiceMap& srv_map);
+	void
+	laserDataCallback(NS_DataType::LaserScan& laser);
 
-    void
-    mapTransformService (NS_ServiceType::ServiceTransform& transform);
+	void
+	mapService(NS_ServiceType::ServiceMap& srv_map);
 
-    double
-    computePoseEntropy ();
+	void
+	mapTransformService(NS_ServiceType::ServiceTransform& transform);
 
-    bool
-    getOdomPose (OrientedPoint& gmap_pose);
+	double
+	computePoseEntropy();
 
-    bool
-    initMapper (NS_DataType::LaserScan& laser_data);
+	bool
+	getOdomPose(OrientedPoint& gmap_pose);
 
-    bool
-    addScan (NS_DataType::LaserScan& laser_data, OrientedPoint& gmap_pose);
+	bool
+	initMapper(NS_DataType::LaserScan& laser_data);
 
-    void
-    updateMap (NS_DataType::LaserScan& laser_data);
-  private:
-    GridSlamProcessor* gsp;
-    RangeSensor* gsp_laser;
-    OdometrySensor* gsp_odom;
+	bool
+	addScan(NS_DataType::LaserScan& laser_data, OrientedPoint& gmap_pose);
 
-    std::vector<double> laser_angles;
-    bool do_reverse_range;
-    unsigned int gsp_laser_beam_count;
+	void
+	updateMap(NS_DataType::LaserScan& laser_data);
+private:
+	GridSlamProcessor* gsp;
+	RangeSensor* gsp_laser;
+	OdometrySensor* gsp_odom;
 
-    bool got_first_scan;
-    bool got_map;
+	std::vector<double> laser_angles;
+	bool do_reverse_range;
+	unsigned int gsp_laser_beam_count;
 
-    NS_Transform::Transform map_to_odom;
+	bool got_first_scan;
+	bool got_map;
 
-    NS_Transform::Transform centered_laser_pose;
+	NS_Transform::Transform map_to_odom;
 
-    int laser_count;
+	NS_Transform::Transform centered_laser_pose;
 
-    NS_DataType::OccupancyGrid map;
+	int laser_count;
 
-    boost::mutex map_to_odom_lock;
-    boost::mutex map_lock;
+	NS_DataType::OccupancyGrid map;
 
-    bool laser_data_processing;
+	boost::mutex map_to_odom_lock;
+	boost::mutex map_lock;
 
-    NS_Service::Server<NS_ServiceType::ServiceTransform>* map_tf_srv;
+	bool laser_data_processing;
 
-    NS_Service::Server<NS_ServiceType::ServiceMap>* map_srv;
+	NS_Service::Server<NS_ServiceType::ServiceTransform>* map_tf_srv;
 
-    NS_DataSet::Subscriber<NS_DataType::LaserScan>* laser_sub;
+	NS_Service::Server<NS_ServiceType::ServiceMap>* map_srv;
 
-    NS_Service::Client<NS_ServiceType::ServiceTransform>* odom_tf_cli;
+	NS_DataSet::Subscriber<NS_DataType::LaserScan>* laser_sub;
 
-  public:
-    virtual void
-    run ();
-    virtual void
-    quit ();
-  };
+	NS_Service::Client<NS_ServiceType::ServiceTransform>* odom_tf_cli;
+
+public:
+	virtual void
+	run();
+	virtual void
+	quit();
+};
 
 } /* namespace NS_GMapping */
 

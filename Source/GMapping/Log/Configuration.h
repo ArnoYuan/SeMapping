@@ -5,17 +5,15 @@
 
 #include "../Sensor/SensorBase/Sensor.h"
 
-namespace NS_GMapping
-{
-  
-  class Configuration
-  {
-  public:
-    virtual
-    ~Configuration ();
-    virtual SensorMap
-    computeSensorMap () const=0;
-  };
+namespace NS_GMapping {
+
+class Configuration {
+public:
+	virtual
+	~Configuration();
+	virtual SensorMap
+	computeSensorMap() const=0;
+};
 
 }
 ;
