@@ -9,7 +9,6 @@
 #define _HECTORMAPPINGAPPLICATION_H_
 
 #include <Application/Application.h>
-#include <DataSet/DataType/DataBase.h>
 #include <Transform/LinearMath/Transform.h>
 #include <DataSet/DataType/LaserScan.h>
 #include <DataSet/DataType/OccupancyGrid.h>
