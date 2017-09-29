@@ -34,6 +34,7 @@ GMappingApplication::GMappingApplication() {
 
 	got_first_scan = false;
 	got_map = false;
+	laser_data_processing = false;
 
 	seed_ = time(NULL);
 
@@ -67,36 +68,45 @@ GMappingApplication::~GMappingApplication() {
 
 void GMappingApplication::laserDataCallback(NS_DataType::LaserScan& laser) {
 	laser_count++;
-///////////////////////////////////////////////////////////////////////////
-	/*
-	 for(int i = 0; i < laser->ranges.size(); i++)
-	 {
-	 float degree = RAD2DEG(laser->angle_min + laser->angle_increment * i);
-	 console.debug("--->   angle: %f, range: %f", degree, laser->ranges[i]);
-	 }
-	 return;
-	 */
 
-////////////////////////////////////////////////////////////////////////////
+	if (!running)
+	{
+		console.debug ("initialization not finish!");
+		return;
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+/*
+		 for(int i = 0; i < laser.ranges.size(); i++)
+		 {
+		   float degree = RAD2DEG(laser.angle_min + laser.angle_increment * i);
+		   printf ("--->   angle: %f, range: %f\n", degree, laser.ranges[i]);
+		 }
+		 return;
+*/
+	////////////////////////////////////////////////////////////////////////////
+
 	if (throttle_scans_ != 0) {
 		if ((laser_count % throttle_scans_) != 0) {
+			console.debug ("skip this scan!");
 			return;
 		}
 	}
 
 	if (laser_data_processing) {
+		console.debug ("last scan always processing,skip!");
 		return;
 	}
 
 	laser_data_processing = true;
-
 	if (!got_first_scan) {
+		console.message ("Got first scan, initial map...");
 		if (!initMapper(laser)) {
 			return;
 		}
 		got_first_scan = true;
 	}
-
+	printf ("--6\n");
 	OrientedPoint odom_pose;
 
 	static NS_NaviCommon::Time last_map_update(0, 0);

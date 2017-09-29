@@ -6,7 +6,7 @@
  */
 
 #include "GMapping/GMappingApplication.h"
-//#include "Hector/HectorMappingApplication.h"
+#include "Hector/HectorMappingApplication.h"
 
 using namespace NS_GMapping;
 //using namespace NS_HectorMapping;
