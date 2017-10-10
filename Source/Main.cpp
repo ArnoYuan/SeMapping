@@ -7,22 +7,56 @@
 
 #include "GMapping/GMappingApplication.h"
 #include "Hector/HectorMappingApplication.h"
+#include <stdlib.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 using namespace NS_GMapping;
 //using namespace NS_HectorMapping;
 
-int main(int argc, char* argv[]) {
-	GMappingApplication app;
-	//HectorMappingApplication app;
+GMappingApplication* app;
 
-	if (!app.initialize(argc, argv)) {
-		return -1;
-	}
-
-	app.run();
-
-	app.pending();
-
-	return 0;
+static void
+signalAction (int signal)
+{
+  printf ("received term signal, quitting!\n");
+  app->quit ();
+  app->terminate ();
 }
 
+void
+registerSignal ()
+{
+	//signal (SIGINT, signalAction);
+	//signal (SIGKILL, signalAction);
+	//signal (SIGQUIT, signalAction);
+	//signal (SIGTERM, signalAction);
+	signal (SIGUSR1, signalAction);
+}
+
+int
+main (int argc, char* argv[])
+{
+  app = new GMappingApplication;
+
+  registerSignal ();
+
+  if (!app->initialize (argc, argv))
+  {
+	exit (EXIT_FAILURE);
+	return 0;
+  }
+
+  app->run ();
+
+  if (!app->isRunning())
+  {
+	exit (EXIT_FAILURE);
+	return 0;
+  }
+
+  app->pending ();
+
+  exit (EXIT_SUCCESS);
+  return 0;
+}

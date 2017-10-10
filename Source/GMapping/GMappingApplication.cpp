@@ -76,14 +76,14 @@ void GMappingApplication::laserDataCallback(NS_DataType::LaserScan& laser) {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-/*
+
 		 for(int i = 0; i < laser.ranges.size(); i++)
 		 {
 		   float degree = RAD2DEG(laser.angle_min + laser.angle_increment * i);
 		   printf ("--->   angle: %f, range: %f\n", degree, laser.ranges[i]);
 		 }
 		 return;
-*/
+
 	////////////////////////////////////////////////////////////////////////////
 
 	if (throttle_scans_ != 0) {
@@ -106,7 +106,7 @@ void GMappingApplication::laserDataCallback(NS_DataType::LaserScan& laser) {
 		}
 		got_first_scan = true;
 	}
-	printf ("--6\n");
+
 	OrientedPoint odom_pose;
 
 	static NS_NaviCommon::Time last_map_update(0, 0);
