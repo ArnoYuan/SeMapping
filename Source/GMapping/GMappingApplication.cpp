@@ -76,14 +76,14 @@ void GMappingApplication::laserDataCallback(NS_DataType::LaserScan& laser) {
 	}
 
 	///////////////////////////////////////////////////////////////////////////
-
+/*
 		 for(int i = 0; i < laser.ranges.size(); i++)
 		 {
 		   float degree = RAD2DEG(laser.angle_min + laser.angle_increment * i);
 		   printf ("--->   angle: %f, range: %f\n", degree, laser.ranges[i]);
 		 }
 		 return;
-
+*/
 	////////////////////////////////////////////////////////////////////////////
 
 	if (throttle_scans_ != 0) {
