@@ -16,47 +16,44 @@ using namespace NS_GMapping;
 
 GMappingApplication* app;
 
-static void
-signalAction (int signal)
+static void signalAction(int signal)
 {
-  printf ("received term signal, quitting!\n");
-  app->quit ();
-  app->terminate ();
+  printf("received term signal, quitting!\n");
+  app->quit();
+  app->terminate();
 }
 
-void
-registerSignal ()
+void registerSignal()
 {
-	//signal (SIGINT, signalAction);
-	//signal (SIGKILL, signalAction);
-	//signal (SIGQUIT, signalAction);
-	//signal (SIGTERM, signalAction);
-	signal (SIGUSR1, signalAction);
+  //signal (SIGINT, signalAction);
+  //signal (SIGKILL, signalAction);
+  //signal (SIGQUIT, signalAction);
+  //signal (SIGTERM, signalAction);
+  signal(SIGUSR1, signalAction);
 }
 
-int
-main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   app = new GMappingApplication;
 
-  registerSignal ();
+  registerSignal();
 
-  if (!app->initialize (argc, argv))
+  if(!app->initialize(argc, argv))
   {
-	exit (EXIT_FAILURE);
-	return 0;
+    exit(EXIT_FAILURE);
+    return 0;
   }
 
-  app->run ();
+  app->run();
 
-  if (!app->isRunning())
+  if(!app->isRunning())
   {
-	exit (EXIT_FAILURE);
-	return 0;
+    exit(EXIT_FAILURE);
+    return 0;
   }
 
-  app->pending ();
+  app->pending();
 
-  exit (EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
   return 0;
 }

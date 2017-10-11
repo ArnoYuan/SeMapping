@@ -10,93 +10,111 @@ class GridMap;
 class ConcreteOccGridMapUtil;
 class DataContainer;
 
-namespace NS_HectorMapping {
+namespace NS_HectorMapping
+{
 
-class MapProcContainer {
-public:
-	MapProcContainer(GridMap* gridMapIn,
-			OccGridMapUtilConfig<GridMap>* gridMapUtilIn,
-			ScanMatcher<OccGridMapUtilConfig<GridMap> >* scanMatcherIn) :
-			gridMap(gridMapIn), gridMapUtil(gridMapUtilIn), scanMatcher(
-					scanMatcherIn), mapMutex(0) {
-	}
+  class MapProcContainer
+  {
+  public:
+    MapProcContainer(
+        GridMap* gridMapIn, OccGridMapUtilConfig< GridMap >* gridMapUtilIn,
+        ScanMatcher< OccGridMapUtilConfig< GridMap > >* scanMatcherIn)
+        : gridMap(gridMapIn), gridMapUtil(gridMapUtilIn),
+          scanMatcher(scanMatcherIn), mapMutex(0)
+    {
+    }
 
-	virtual ~MapProcContainer() {
-	}
+    virtual ~MapProcContainer()
+    {
+    }
 
-	void cleanup() {
-		delete gridMap;
-		delete gridMapUtil;
-		delete scanMatcher;
+    void cleanup()
+    {
+      delete gridMap;
+      delete gridMapUtil;
+      delete scanMatcher;
 
-		if (mapMutex) {
-			delete mapMutex;
-		}
-	}
+      if(mapMutex)
+      {
+        delete mapMutex;
+      }
+    }
 
-	void reset() {
-		gridMap->reset();
-		gridMapUtil->resetCachedData();
-	}
+    void reset()
+    {
+      gridMap->reset();
+      gridMapUtil->resetCachedData();
+    }
 
-	void resetCachedData() {
-		gridMapUtil->resetCachedData();
-	}
+    void resetCachedData()
+    {
+      gridMapUtil->resetCachedData();
+    }
 
-	float getScaleToMap() const {
-		return gridMap->getScaleToMap();
-	}
-	;
+    float getScaleToMap() const
+    {
+      return gridMap->getScaleToMap();
+    }
+    ;
 
-	const GridMap&
-	getGridMap() const {
-		return *gridMap;
-	}
-	;
-	GridMap&
-	getGridMap() {
-		return *gridMap;
-	}
-	;
+    const GridMap&
+    getGridMap() const
+    {
+      return *gridMap;
+    }
+    ;
+    GridMap&
+    getGridMap()
+    {
+      return *gridMap;
+    }
+    ;
 
-	void addMapMutex(MapLockerInterface* mapMutexIn) {
-		if (mapMutex) {
-			delete mapMutex;
-		}
+    void addMapMutex(MapLockerInterface* mapMutexIn)
+    {
+      if(mapMutex)
+      {
+        delete mapMutex;
+      }
 
-		mapMutex = mapMutexIn;
-	}
+      mapMutex = mapMutexIn;
+    }
 
-	MapLockerInterface*
-	getMapMutex() {
-		return mapMutex;
-	}
+    MapLockerInterface*
+    getMapMutex()
+    {
+      return mapMutex;
+    }
 
-	Eigen::Vector3f matchData(const Eigen::Vector3f& beginEstimateWorld,
-			const DataContainer& dataContainer, Eigen::Matrix3f& covMatrix,
-			int maxIterations) {
-		return scanMatcher->matchData(beginEstimateWorld, *gridMapUtil,
-				dataContainer, covMatrix, maxIterations);
-	}
+    Eigen::Vector3f matchData(const Eigen::Vector3f& beginEstimateWorld,
+                              const DataContainer& dataContainer,
+                              Eigen::Matrix3f& covMatrix, int maxIterations)
+    {
+      return scanMatcher->matchData(beginEstimateWorld, *gridMapUtil,
+                                    dataContainer, covMatrix, maxIterations);
+    }
 
-	void updateByScan(const DataContainer& dataContainer,
-			const Eigen::Vector3f& robotPoseWorld) {
-		if (mapMutex) {
-			mapMutex->lockMap();
-		}
+    void updateByScan(const DataContainer& dataContainer,
+                      const Eigen::Vector3f& robotPoseWorld)
+    {
+      if(mapMutex)
+      {
+        mapMutex->lockMap();
+      }
 
-		gridMap->updateByScan(dataContainer, robotPoseWorld);
+      gridMap->updateByScan(dataContainer, robotPoseWorld);
 
-		if (mapMutex) {
-			mapMutex->unlockMap();
-		}
-	}
+      if(mapMutex)
+      {
+        mapMutex->unlockMap();
+      }
+    }
 
-	GridMap* gridMap;
-	OccGridMapUtilConfig<GridMap>* gridMapUtil;
-	ScanMatcher<OccGridMapUtilConfig<GridMap> >* scanMatcher;
-	MapLockerInterface* mapMutex;
-};
+    GridMap* gridMap;
+    OccGridMapUtilConfig< GridMap >* gridMapUtil;
+    ScanMatcher< OccGridMapUtilConfig< GridMap > >* scanMatcher;
+    MapLockerInterface* mapMutex;
+  };
 
 }
 

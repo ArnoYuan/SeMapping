@@ -6,9 +6,10 @@
 #include <fstream>
 #include <string>
 
-namespace NS_GMapping {
-void
-printmemusage();
+namespace NS_GMapping
+{
+  void
+  printmemusage();
 }
 ;
 

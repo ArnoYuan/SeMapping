@@ -1,13 +1,16 @@
 #include "../../Sensor/SensorBase/Sensor.h"
 
-namespace NS_GMapping {
+namespace NS_GMapping
+{
 
-Sensor::Sensor(const std::string& name) {
-	m_name = name;
-}
+  Sensor::Sensor(const std::string& name)
+  {
+    m_name = name;
+  }
 
-Sensor::~Sensor() {
-}
+  Sensor::~Sensor()
+  {
+  }
 
 }
 ;

@@ -11,85 +11,94 @@
 
 #include <Console/Console.h>
 
-class HectorDrawings: public DrawInterface {
+class HectorDrawings: public DrawInterface
+{
 public:
 
-	HectorDrawings() {
-		this->setScale(1.0);
-		this->setColor(1.0, 1.0, 1.0);
-	}
-	;
+  HectorDrawings()
+  {
+    this->setScale(1.0);
+    this->setColor(1.0, 1.0, 1.0);
+  }
+  ;
 
-	virtual void drawPoint(const Eigen::Vector2f& pointWorldFrame) {
-		double x = pointWorldFrame.x();
-		double y = pointWorldFrame.y();
+  virtual void drawPoint(const Eigen::Vector2f& pointWorldFrame)
+  {
+    double x = pointWorldFrame.x();
+    double y = pointWorldFrame.y();
 
-		printf("Draw Point (%f, %f)\n", x, y);
-	}
+    printf("Draw Point (%f, %f)\n", x, y);
+  }
 
-	virtual void drawArrow(const Eigen::Vector3f& poseWorld) {
-		NS_DataType::Pose p;
+  virtual void drawArrow(const Eigen::Vector3f& poseWorld)
+  {
+    NS_DataType::Pose p;
 
-		p.position.x = poseWorld.x();
-		p.position.y = poseWorld.y();
+    p.position.x = poseWorld.x();
+    p.position.y = poseWorld.y();
 
-		p.orientation.w = cos(poseWorld.z() * 0.5f);
-		p.orientation.z = sin(poseWorld.z() * 0.5f);
+    p.orientation.w = cos(poseWorld.z() * 0.5f);
+    p.orientation.z = sin(poseWorld.z() * 0.5f);
 
-		printf("Draw Pose position->(%f, %f) orientation->(%f, %f)\n",
-				p.position.x, p.position.y, p.orientation.w, p.orientation.z);
-	}
+    printf("Draw Pose position->(%f, %f) orientation->(%f, %f)\n", p.position.x,
+           p.position.y, p.orientation.w, p.orientation.z);
+  }
 
-	virtual void drawCovariance(const Eigen::Vector2f& mean,
-			const Eigen::Matrix2f& covMatrix) {
+  virtual void drawCovariance(const Eigen::Vector2f& mean,
+                              const Eigen::Matrix2f& covMatrix)
+  {
 
-		NS_DataType::Pose p;
+    NS_DataType::Pose p;
 
-		p.position.x = mean[0];
-		p.position.y = mean[1];
+    p.position.x = mean[0];
+    p.position.y = mean[1];
 
-		Eigen::SelfAdjointEigenSolver<Eigen::Matrix2f> eig(covMatrix);
+    Eigen::SelfAdjointEigenSolver< Eigen::Matrix2f > eig(covMatrix);
 
-		const Eigen::Vector2f& eigValues(eig.eigenvalues());
-		const Eigen::Matrix2f& eigVectors(eig.eigenvectors());
+    const Eigen::Vector2f& eigValues(eig.eigenvalues());
+    const Eigen::Matrix2f& eigVectors(eig.eigenvectors());
 
-		float angle = (atan2(eigVectors(1, 0), eigVectors(0, 0)));
+    float angle = (atan2(eigVectors(1, 0), eigVectors(0, 0)));
 
-		double lengthMajor = sqrt(eigValues[0]);
-		double lengthMinor = sqrt(eigValues[1]);
+    double lengthMajor = sqrt(eigValues[0]);
+    double lengthMinor = sqrt(eigValues[1]);
 
-		NS_DataType::Vector3 v;
+    NS_DataType::Vector3 v;
 
-		v.x = lengthMajor;
-		v.y = lengthMinor;
-		v.z = 0.001;
+    v.x = lengthMajor;
+    v.y = lengthMinor;
+    v.z = 0.001;
 
-		p.orientation.w = cos(angle * 0.5);
-		p.orientation.z = sin(angle * 0.5);
+    p.orientation.w = cos(angle * 0.5);
+    p.orientation.z = sin(angle * 0.5);
 
-		//drawLine(Eigen::Vector3f(0,0,0), Eigen::Vector3f(lengthMajor ,0,0));
-		//drawLine(Eigen::Vector3f(0,0,0), Eigen::Vector3f(0,lengthMinor,0));
+    //drawLine(Eigen::Vector3f(0,0,0), Eigen::Vector3f(lengthMajor ,0,0));
+    //drawLine(Eigen::Vector3f(0,0,0), Eigen::Vector3f(0,lengthMinor,0));
 
-		//glScalef(lengthMajor, lengthMinor, 0);
-		//glCallList(dlCircle);
-		//this->popCS();
-	}
+    //glScalef(lengthMajor, lengthMinor, 0);
+    //glCallList(dlCircle);
+    //this->popCS();
+  }
 
-	virtual void setScale(double scale) {
+  virtual void setScale(double scale)
+  {
 
-	}
+  }
 
-	virtual void setColor(double r, double g, double b, double a = 1.0) {
+  virtual void setColor(double r, double g, double b, double a = 1.0)
+  {
 
-	}
+  }
 
-	virtual void sendAndResetData() {
+  virtual void sendAndResetData()
+  {
 
-	}
+  }
 
-	void setTime(const NS_NaviCommon::Time& time) {
+  void setTime(const NS_NaviCommon::Time& time)
+  {
 
-	}
+  }
 };
 
 #endif

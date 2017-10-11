@@ -12,17 +12,20 @@ typedef GridMapCacheHash GridMapCacheMethod;
 typedef GridMapCacheArray GridMapCacheMethod;
 #endif
 
-namespace NS_HectorMapping {
+namespace NS_HectorMapping
+{
 
-template<typename ConcreteOccGridMap>
-class OccGridMapUtilConfig: public OccGridMapUtil<ConcreteOccGridMap,
-		GridMapCacheMethod> {
-public:
+  template< typename ConcreteOccGridMap >
+  class OccGridMapUtilConfig: public OccGridMapUtil< ConcreteOccGridMap,
+      GridMapCacheMethod >
+  {
+  public:
 
-	OccGridMapUtilConfig(ConcreteOccGridMap* gridMap = 0) :
-			OccGridMapUtil<ConcreteOccGridMap, GridMapCacheMethod>(gridMap) {
-	}
-};
+    OccGridMapUtilConfig(ConcreteOccGridMap* gridMap = 0)
+        : OccGridMapUtil< ConcreteOccGridMap, GridMapCacheMethod >(gridMap)
+    {
+    }
+  };
 
 }
 

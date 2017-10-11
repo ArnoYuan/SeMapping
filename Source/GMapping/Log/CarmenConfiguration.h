@@ -9,16 +9,18 @@
 #include "../Sensor/SensorBase/Sensor.h"
 #include "Configuration.h"
 
-namespace NS_GMapping {
+namespace NS_GMapping
+{
 
-class CarmenConfiguration: public Configuration, public std::map<std::string,
-		std::vector<std::string> > {
-public:
-	virtual std::istream&
-	load(std::istream& is);
-	virtual SensorMap
-	computeSensorMap() const;
-};
+  class CarmenConfiguration: public Configuration, public std::map< std::string,
+      std::vector< std::string > >
+  {
+  public:
+    virtual std::istream&
+    load(std::istream& is);
+    virtual SensorMap
+    computeSensorMap() const;
+  };
 
 }
 ;

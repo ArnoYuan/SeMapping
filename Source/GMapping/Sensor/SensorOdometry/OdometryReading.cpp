@@ -1,10 +1,12 @@
 #include "../SensorOdometry/OdometryReading.h"
 
-namespace NS_GMapping {
+namespace NS_GMapping
+{
 
-OdometryReading::OdometryReading(const OdometrySensor* odo, double time) :
-		SensorReading(odo, time) {
-}
+  OdometryReading::OdometryReading(const OdometrySensor* odo, double time)
+      : SensorReading(odo, time)
+  {
+  }
 
 }
 ;
