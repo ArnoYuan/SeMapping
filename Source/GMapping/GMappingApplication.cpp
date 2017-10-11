@@ -209,6 +209,12 @@ namespace NS_GMapping
       return false;
     }
 
+    if(base_odom_tf.result == false)
+    {
+      console.warning("Odometry transform is not correct!");
+      return false;
+    }
+
     double yaw = NS_Transform::getYaw(base_odom_tf.transform.rotation);
 
     gmap_pose = OrientedPoint(base_odom_tf.transform.translation.x,
@@ -437,13 +443,13 @@ namespace NS_GMapping
   {
     if(!getOdomPose(gmap_pose))
     {
-      console.debug("Get odometry pose failure!");
+      console.warning("Get odometry pose failure!");
       return false;
     }
 
     if(laser_data.ranges.size() != gsp_laser_beam_count)
     {
-      console.debug("Laser beam count number is not correct!");
+      console.warning("Laser beam count number is not correct!");
       return false;
     }
 
