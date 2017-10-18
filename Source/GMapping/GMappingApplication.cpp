@@ -532,7 +532,7 @@ namespace NS_GMapping
     angular_update_ = parameter.getParameter("angular_update", 0.5f);
     temporal_update_ = parameter.getParameter("temporal_update", -1.0f);
     resample_threshold_ = parameter.getParameter("resample_threshold", 0.5f);
-    particles_ = parameter.getParameter("particles", 30);
+    particles_ = parameter.getParameter("particles", 12);
 
     xmin_ = parameter.getParameter("xmin", -25.0f);
     ymin_ = parameter.getParameter("ymin", -25.0f);
@@ -547,7 +547,7 @@ namespace NS_GMapping
     lasamplerange_ = parameter.getParameter("lasamplerange", 0.005f);
     lasamplestep_ = parameter.getParameter("lasamplestep", 0.005f);
 
-    throttle_scans_ = parameter.getParameter("throttle_scans", 5);
+    throttle_scans_ = parameter.getParameter("throttle_scans", 1);
 
     double map_update_interval_sec = parameter.getParameter(
         "map_update_interval", 3.0f);
