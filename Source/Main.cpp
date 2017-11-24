@@ -11,10 +11,11 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-using namespace NS_GMapping;
-//using namespace NS_HectorMapping;
+//using namespace NS_GMapping;
+using namespace NS_HectorMapping;
 
-GMappingApplication* app;
+//GMappingApplication* app;
+HectorMappingApplication* app;
 
 static void signalAction(int signal)
 {
@@ -34,7 +35,7 @@ void registerSignal()
 
 int main(int argc, char* argv[])
 {
-  app = new GMappingApplication;
+  app = new HectorMappingApplication;
 
   registerSignal();
 
