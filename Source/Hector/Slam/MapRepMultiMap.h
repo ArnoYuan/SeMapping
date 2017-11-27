@@ -37,14 +37,19 @@ namespace NS_HectorMapping
         GridMap* gridMap = new NS_HectorMapping::GridMap(
             mapResolution, resolution,
             Eigen::Vector2f(mid_offset_x, mid_offset_y));
+        printf("1111---%d\n", i);
         OccGridMapUtilConfig< GridMap >* gridMapUtil = new OccGridMapUtilConfig<
             GridMap >(gridMap);
+        printf("2222---%d\n", i);
         ScanMatcher< OccGridMapUtilConfig< GridMap > >* scanMatcher = new ScanMatcher<
             OccGridMapUtilConfig< GridMap > >(drawInterfaceIn,
                                               debugInterfaceIn);
 
+        printf("3333---%d\n", i);
+
         mapContainer.push_back(
             MapProcContainer(gridMap, gridMapUtil, scanMatcher));
+        printf("4444---%d\n", i);
 
         resolution /= 2;
         mapResolution *= 2.0f;
