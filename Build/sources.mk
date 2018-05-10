@@ -34,3 +34,4 @@ Source/GMapping/Utils \
 Source/Hector \
 Source/Hector/Utils \
 Source \
+Source/libsgbot \

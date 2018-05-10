@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lSeNaviCommon -lboost_program_options -lboost_thread -lboost_system -lrt -lpthread -lorocos-bfl
+LIBS := -lboost_system -lsgbot -lSeNaviCommon -lboost_thread -lboost_program_options -lpthread -lrt
 

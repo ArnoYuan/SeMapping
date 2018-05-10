@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include Source/libsgbot/subdir.mk
 -include Source/Hector/Utils/subdir.mk
 -include Source/Hector/subdir.mk
 -include Source/GMapping/Utils/subdir.mk

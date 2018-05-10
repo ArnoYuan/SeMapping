@@ -66,7 +66,13 @@ namespace NS_Sgbot
 
 	void SgbotApplication::mapTransformService(NS_ServiceType::ServiceTransform& transform)
 	{
-
+		float dx = 0.0f;
+		float dy = 0.0f;
+		map_transform.getTranslation(dx, dy);
+		transform.transform.translation.x = dx;
+		transform.transform.translation.y = dy;
+		transform.transform.translation.z = 0.0f;
+		transform.transform.rotation
 
 	}
 
