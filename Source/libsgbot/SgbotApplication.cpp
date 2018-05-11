@@ -6,8 +6,9 @@
  */
 #include "SgbotApplication.h"
 
-
+#define USE_DBG
 #ifdef USE_DBG
+#include <stdio.h>
 #define DBG_PRINTF	printf
 #else
 #define DBG_PRINTF
@@ -130,6 +131,16 @@ namespace NS_Sgbot
 			angle += scan.angle_increment;
 		}
 		mapping->updateByScan(laser);
+		DBG_PRINTF("------------------laser--------------\n");
+		DBG_PRINTF("angle_min:%f\n", scan.angle_min);
+		DBG_PRINTF("angle_increment:%f\n", scan.angle_increment);
+		DBG_PRINTF("ranges:%d\n", scan.ranges.size());
+		for(int i=0;i<scan.ranges.size();++i)
+		{
+			DBG_PRINTF("%f,", scan.ranges[i]);
+		}
+		DBG_PRINTF("\n");
+		DBG_PRINTF("-------------------------------------\n");
 		/*
 		boost::mutex::scoped_lock map_tf_mutex(map_transform_lock);
 		sgbot::Pose2D pose = mapping->getPose();
@@ -204,6 +215,7 @@ namespace NS_Sgbot
 				{
 					sgbot::Map2D map2d = mapping->getMap(update_map_level_);
 					getMap(map, map2d);
+					DBG_PRINTF("update map\n");
 				}
 			}
 			r.sleep();
