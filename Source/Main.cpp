@@ -5,19 +5,19 @@
  *      Author: seeing
  */
 
-//#include "GMapping/GMappingApplication.h"
-//#include "Hector/HectorMappingApplication.h"
+#include "GMapping/GMappingApplication.h"
+#include "Hector/HectorMappingApplication.h"
 #include "libsgbot/SgbotApplication.h"
 #include <stdlib.h>
 #include <signal.h>
 #include <sys/wait.h>
 
 //using namespace NS_GMapping;
-//using namespace NS_HectorMapping;
-using namespace NS_Sgbot;
+using namespace NS_HectorMapping;
+//using namespace NS_Sgbot;
 //GMappingApplication* app;
-//HectorMappingApplication* app;
-SgbotApplication *app;
+HectorMappingApplication* app;
+//SgbotApplication *app;
 
 static void signalAction(int signal)
 {
@@ -37,8 +37,8 @@ void registerSignal()
 
 int main(int argc, char* argv[])
 {
-  //app = new HectorMappingApplication;
-  app = new SgbotApplication;
+  app = new HectorMappingApplication;
+  //app = new SgbotApplication;
 
   registerSignal();
 

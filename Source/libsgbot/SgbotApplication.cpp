@@ -7,6 +7,12 @@
 #include "SgbotApplication.h"
 
 
+#ifdef USE_DBG
+#define DBG_PRINTF	printf
+#else
+#define DBG_PRINTF
+#endif
+
 namespace NS_Sgbot
 {
 	SgbotApplication::SgbotApplication()
