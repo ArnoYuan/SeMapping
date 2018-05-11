@@ -19,7 +19,8 @@ namespace NS_Sgbot
 	    map_tf_srv = new NS_Service::Server< NS_ServiceType::ServiceTransform >(
 	        "ODOM_MAP_TF",
 	        boost::bind(&SgbotApplication::mapTransformService, this, _1));
-
+	    odom_tf_cli = new NS_Service::Client< NS_ServiceType::ServiceTransform >(
+	        "BASE_ODOM_TF");
 	}
 
 	SgbotApplication::~SgbotApplication()
@@ -49,6 +50,37 @@ namespace NS_Sgbot
 		min_update_distance_ = parameter.getParameter("min_udpate_distance", 0.4f);
 	}
 
+	static inline void transformTFToMsg(const sgbot::tf::Transform2D& bt,
+	                                      NS_DataType::Transform& msg)
+	{
+		float x=0;
+		float y = 0;
+		float theta = 0;
+		float scalar = 0;
+		bt.getValue(x, y, theta, scalar);
+
+		msg.translation.x = x;
+		msg.translation.y = y;
+		msg.translation.z = 0;
+		msg.rotation.x = 0;
+		msg.rotation.y = 0;
+		msg.rotation.z = sin(theta/2);
+		msg.rotation.w = cos(theta/2);
+
+	}
+
+	static inline void transformMsgToTF(const NS_DataType::Transform& msg, sgbot::tf::Transform2D& bt)
+	{
+		float x = 0;
+		float y = 0;
+		float theta = 0;
+		float scalar = 1;
+		x = msg.translation.x;
+		y = msg.translation.y;
+		theta = asin(msg.rotation.z)*2;
+		bt.setValue(x, y, theta, scalar);
+	}
+
 	void SgbotApplication::mapService(NS_ServiceType::ServiceMap &srv_map)
 	{
 		boost::mutex::scoped_lock map_mutex(map_lock);
@@ -66,7 +98,8 @@ namespace NS_Sgbot
 
 	void SgbotApplication::mapTransformService(NS_ServiceType::ServiceTransform& transform)
 	{
-
+		boost::mutex::scoped_lock map_tf_mutex(map_to_odom_lock_);
+		transformTFToMsg(map_to_odom_, transform.transform);
 	}
 
 	void SgbotApplication::scanDataCallback(NS_DataType::LaserScan &scan)
@@ -91,10 +124,30 @@ namespace NS_Sgbot
 			angle += scan.angle_increment;
 		}
 		mapping->updateByScan(laser);
-
-
+		/*
+		boost::mutex::scoped_lock map_tf_mutex(map_transform_lock);
 		sgbot::Pose2D pose = mapping->getPose();
+		sgbot::la::Matrix<float, 3, 3> pose_cov = mapping->getPoseCovariance();
 
+		map_transform_.setValue(pose.x(), pose.y(), pose.theta(), 1);
+	*/
+	    /*
+	     * process map->odom transform
+	     */
+		sgbot::tf::Transform2D odom_to_base;
+
+	    NS_ServiceType::ServiceTransform base_odom_tf;
+
+	    if(odom_tf_cli->call(base_odom_tf))
+	    {
+	      boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
+
+	      transformMsgToTF(base_odom_tf.transform, odom_to_base);
+	      sgbot::Pose2D pose = mapping->getPose();
+	      sgbot::tf::Transform2D map_to_base = sgbot::tf::Transform2D(pose.x(), pose.y(), pose.theta(), 1);
+
+	      map_to_odom_ = sgbot::tf::Transform2D(map_to_base * odom_to_base.inverse());
+	    }
 	}
 
 	void SgbotApplication::getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d)

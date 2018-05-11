@@ -19,6 +19,7 @@
 #include <Service/Server.h>
 #include <DataSet/DataType/LaserScan.h>
 #include <Parameter/Parameter.h>
+#include <Service/Client.h>
 
 #include <slam/hector/mapping.h>
 
@@ -42,8 +43,10 @@ namespace NS_Sgbot
 
 		    NS_Service::Server< NS_ServiceType::ServiceTransform >* map_tf_srv;
 
-		    sgbot::tf::Transform2D map_transform;
+		    NS_Service::Client< NS_ServiceType::ServiceTransform >* odom_tf_cli;
 
+		    sgbot::tf::Transform2D map_to_odom_;
+		    boost::mutex map_to_odom_lock_;
 		    boost::mutex map_lock;
 		    boost::thread update_map_thread;
 
