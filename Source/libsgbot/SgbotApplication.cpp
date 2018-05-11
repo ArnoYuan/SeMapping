@@ -6,7 +6,7 @@
  */
 #include "SgbotApplication.h"
 
-#define USE_DBG
+//#define USE_DBG
 #ifdef USE_DBG
 #include <stdio.h>
 #define DBG_PRINTF	printf
@@ -35,6 +35,8 @@ namespace NS_Sgbot
 		delete mapping;
 		delete map_srv;
 		delete laser_sub;
+		delete map_tf_srv;
+		delete odom_tf_cli;
 	}
 
 	void SgbotApplication::loadParameters()
