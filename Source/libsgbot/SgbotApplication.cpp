@@ -6,7 +6,7 @@
  */
 #include "SgbotApplication.h"
 
-//#define USE_DBG
+#define USE_DBG
 #ifdef USE_DBG
 #include <stdio.h>
 #define DBG_PRINTF	printf
@@ -122,27 +122,27 @@ namespace NS_Sgbot
 
 		laser.setOrigin(origin);
 		float angle = scan.angle_min;
-
-		for(int i=0;i<scan.ranges.size();++i)
-		{
-			float dist = scan.ranges[i];
-			if((dist > scan.range_min) && (dist<(scan.range_max-0.1f)))
-			{
-				laser.addBeam(angle, dist);
-			}
-			angle += scan.angle_increment;
-		}
-		mapping->updateByScan(laser);
 		DBG_PRINTF("------------------laser--------------\n");
 		DBG_PRINTF("angle_min:%f\n", scan.angle_min);
 		DBG_PRINTF("angle_increment:%f\n", scan.angle_increment);
 		DBG_PRINTF("ranges:%d\n", scan.ranges.size());
+
 		for(int i=0;i<scan.ranges.size();++i)
 		{
-			DBG_PRINTF("%f,", scan.ranges[i]);
+			float dist = scan.ranges[i];
+			//dist = 1;
+			if((dist > scan.range_min) && (dist<(scan.range_max-0.1f)))
+			{
+				laser.addBeam(angle, dist);
+				DBG_PRINTF("(%f,%f),", angle, dist);
+			}
+			angle += scan.angle_increment;
 		}
+		mapping->updateByScan(laser);
 		DBG_PRINTF("\n");
 		DBG_PRINTF("-------------------------------------\n");
+		//std::cout<<laser;
+
 		/*
 		boost::mutex::scoped_lock map_tf_mutex(map_transform_lock);
 		sgbot::Pose2D pose = mapping->getPose();
@@ -231,7 +231,7 @@ namespace NS_Sgbot
 		sgbot::slam::hector::HectorMappingConfig config;
 		config.map_properties.resolution = map_resolution_;
 		config.map_properties.height = map_height_;
-		config.map_properties.height = map_height_;
+		config.map_properties.width = map_width_;
 		config.map_properties.left_offset = map_left_offset_;
 		config.map_properties.top_offset = map_top_offset_;
 		config.min_update_distance = min_update_distance_;
@@ -240,8 +240,8 @@ namespace NS_Sgbot
 		config.update_occupied_factor = update_occupied_factor_;
 		config.use_multi_level_maps = use_multi_level_maps_;
 
-		mapping = new sgbot::slam::hector::HectorMapping(config);
-
+		//mapping = new sgbot::slam::hector::HectorMapping(config);
+		mapping = new sgbot::slam::hector::HectorMapping();
 		running = true;
 		update_map_thread = boost::thread(
 				boost::bind(&SgbotApplication::updateMapLoop, this, map_update_frequency_));
