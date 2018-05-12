@@ -6,7 +6,7 @@
  */
 #include "SgbotApplication.h"
 
-#define USE_DBG
+//#define USE_DBG
 #ifdef USE_DBG
 #include <stdio.h>
 #define DBG_PRINTF	printf
@@ -37,6 +37,8 @@ namespace NS_Sgbot
 		delete laser_sub;
 		delete map_tf_srv;
 		delete odom_tf_cli;
+		running = false;
+		update_map_thread.join();
 	}
 
 	void SgbotApplication::loadParameters()
@@ -53,10 +55,25 @@ namespace NS_Sgbot
 		map_left_offset_ = parameter.getParameter("map_left_offset", 0.5f);
 		map_top_offset_ = parameter.getParameter("map_top_offset", 0.5f);
 		use_multi_level_maps_ = parameter.getParameter("use_mutli_level_maps", 1);
-		update_free_factor_ = parameter.getParameter("update_free_factor", 0.9f);
+		update_free_factor_ = parameter.getParameter("update_free_factor", 0.4f);
 		update_occupied_factor_ = parameter.getParameter("update_occupied_factor", 0.9f);
 		min_update_theta_ = parameter.getParameter("min_udpate_theta", 0.9f);
 		min_update_distance_ = parameter.getParameter("min_udpate_distance", 0.4f);
+
+		DBG_PRINTF("-----------------------\n");
+		DBG_PRINTF("update_map_level:%d\n", update_map_level_);
+		DBG_PRINTF("map_update_frequency:%f\n", map_update_frequency_);
+		DBG_PRINTF("map_resolution:%f\n", map_resolution_);
+		DBG_PRINTF("map_height:%d\n", map_height_);
+		DBG_PRINTF("map_width:%d\n", map_width_);
+		DBG_PRINTF("left_offset:%f\n", map_left_offset_);
+		DBG_PRINTF("top_offset:%f\n", map_top_offset_);
+		DBG_PRINTF("use_multi_level_maps:%d\n",use_multi_level_maps_);
+		DBG_PRINTF("update_free_factor:%f\n", update_free_factor_);
+		DBG_PRINTF("update_occupied_factor:%f\n", update_occupied_factor_);
+		DBG_PRINTF("min_update_theta:%f\n", min_update_theta_);
+		DBG_PRINTF("min_update_distance:%f\n", min_update_distance_);
+		DBG_PRINTF("-----------------------\n");
 	}
 
 	static inline void transformTFToMsg(const sgbot::tf::Transform2D& bt,
@@ -114,6 +131,9 @@ namespace NS_Sgbot
 	void SgbotApplication::scanDataCallback(NS_DataType::LaserScan &scan)
 	{
 		sgbot::sensor::Lidar2D laser;
+
+		if(!running)
+			return;
 
 		laser.clear();
 		sgbot::Point2D origin;
@@ -229,19 +249,30 @@ namespace NS_Sgbot
 		loadParameters();
 
 		sgbot::slam::hector::HectorMappingConfig config;
+
 		config.map_properties.resolution = map_resolution_;
 		config.map_properties.height = map_height_;
 		config.map_properties.width = map_width_;
 		config.map_properties.left_offset = map_left_offset_;
 		config.map_properties.top_offset = map_top_offset_;
-		config.min_update_distance = min_update_distance_;
-		config.min_update_theta = min_update_theta_;
+		config.use_multi_level_maps = use_multi_level_maps_;
 		config.update_free_factor = update_free_factor_;
 		config.update_occupied_factor = update_occupied_factor_;
-		config.use_multi_level_maps = use_multi_level_maps_;
+		config.min_update_theta = min_update_theta_;
+		config.min_update_distance = min_update_distance_;
+		DBG_PRINTF("map_resolution:%f", map_resolution_);
+		DBG_PRINTF("map_height:%d\n", map_height_);
+		DBG_PRINTF("map_width:%d\n", map_width_);
+		DBG_PRINTF("left_offset:%f\n", map_left_offset_);
+		DBG_PRINTF("top_offset:%f\n", map_top_offset_);
+		DBG_PRINTF("use_multi_level_maps:%d\n",use_multi_level_maps_);
+		DBG_PRINTF("update_free_factor:%f\n", update_free_factor_);
+		DBG_PRINTF("update_occupied_factor:%f\n", update_occupied_factor_);
+		DBG_PRINTF("min_update_theta:%f\n", min_update_theta_);
+		DBG_PRINTF("min_update_distance:%f\n", min_update_distance_);
 
-		//mapping = new sgbot::slam::hector::HectorMapping(config);
-		mapping = new sgbot::slam::hector::HectorMapping();
+		mapping = new sgbot::slam::hector::HectorMapping(config);
+		//mapping = new sgbot::slam::hector::HectorMapping();
 		running = true;
 		update_map_thread = boost::thread(
 				boost::bind(&SgbotApplication::updateMapLoop, this, map_update_frequency_));

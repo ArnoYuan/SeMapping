@@ -52,17 +52,17 @@ namespace NS_Sgbot
 
 		    int update_map_level_;
 
-		    double map_update_frequency_;
+		    float map_update_frequency_;
 
 			double map_resolution_;
 			int map_width_;
 			int map_height_;
-			int map_left_offset_;
-			int map_top_offset_;
-			double min_update_distance_;
-			double min_update_theta_;
-			double update_free_factor_;
-			double update_occupied_factor_;
+			float map_left_offset_;
+			float map_top_offset_;
+			float min_update_distance_;
+			float min_update_theta_;
+			float update_free_factor_;
+			float update_occupied_factor_;
 			bool use_multi_level_maps_;
 
 		private:
