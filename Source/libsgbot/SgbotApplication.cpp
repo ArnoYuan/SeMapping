@@ -13,6 +13,7 @@
 #else
 #define DBG_PRINTF
 #endif
+#include <stdio.h>
 
 namespace NS_Sgbot
 {
@@ -28,6 +29,9 @@ namespace NS_Sgbot
 	        boost::bind(&SgbotApplication::mapTransformService, this, _1));
 	    odom_tf_cli = new NS_Service::Client< NS_ServiceType::ServiceTransform >(
 	        "BASE_ODOM_TF");
+
+	    odom_pose_cli = new NS_Service::Client< NS_ServiceType::ServiceOdometry>(
+	    		"BASE_ODOM");
 	}
 
 	SgbotApplication::~SgbotApplication()
@@ -37,6 +41,7 @@ namespace NS_Sgbot
 		delete laser_sub;
 		delete map_tf_srv;
 		delete odom_tf_cli;
+		close(log_fd);
 		running = false;
 		update_map_thread.join();
 	}
@@ -238,6 +243,24 @@ namespace NS_Sgbot
 					sgbot::Map2D map2d = mapping->getMap(update_map_level_);
 					getMap(map, map2d);
 					DBG_PRINTF("update map\n");
+
+					/*
+					 * log
+					 */
+					sgbot::Pose2D pose = mapping->getPose();
+					sgbot::la::Matrix<float , 3, 3> cov = mapping->getPoseCovariance();
+					NS_ServiceType::ServiceOdometry odom_pose;
+					odom_pose_cli->call(odom_pose);
+					int ret = 0;
+					char buf[256];
+					ret += sprintf(buf+ret, "[%f,%f,%f]", pose.x(), pose.y(), pose.theta());
+					ret += sprintf(buf+ret, "[%f,%f,%f]",
+								odom_pose.odom.pose.position.x,
+								odom_pose.odom.pose.position.y,
+								sgbot::math::asin(odom_pose.odom.pose.orientation.z));
+					ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.odom.twist.linear.x, odom_pose.odom.twist.angular.z);
+					write(log_fd, buf, ret);
+
 				}
 			}
 			r.sleep();
@@ -247,6 +270,12 @@ namespace NS_Sgbot
 	void SgbotApplication::run()
 	{
 		loadParameters();
+
+		log_fd = open("/tmp/sgbot_log.txt", O_RDWR|O_CREAT);
+		if(log_fd<0)
+		{
+			printf("sgbot_log file open failed.\n");
+		}
 
 		sgbot::slam::hector::HectorMappingConfig config;
 

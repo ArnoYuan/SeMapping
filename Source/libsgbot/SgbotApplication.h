@@ -20,8 +20,13 @@
 #include <DataSet/DataType/LaserScan.h>
 #include <Parameter/Parameter.h>
 #include <Service/Client.h>
+#include <Service/ServiceType/ServiceOdometry.h>
 
 #include <slam/hector/mapping.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 namespace NS_Sgbot
 {
@@ -45,6 +50,8 @@ namespace NS_Sgbot
 
 		    NS_Service::Client< NS_ServiceType::ServiceTransform >* odom_tf_cli;
 
+		    NS_Service::Client<NS_ServiceType::ServiceOdometry> *odom_pose_cli;
+
 		    sgbot::tf::Transform2D map_to_odom_;
 		    boost::mutex map_to_odom_lock_;
 		    boost::mutex map_lock;
@@ -64,6 +71,7 @@ namespace NS_Sgbot
 			float update_free_factor_;
 			float update_occupied_factor_;
 			bool use_multi_level_maps_;
+			int log_fd;
 
 		private:
 		    void loadParameters();
