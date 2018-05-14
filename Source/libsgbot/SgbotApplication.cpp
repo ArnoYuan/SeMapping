@@ -168,7 +168,7 @@ namespace NS_Sgbot
 			angle += scan.angle_increment;
 		}
 		mapping->updateByScan(laser);
-		DBG_PRINTF("[scanDataCallback]%f\n", (NS_NaviCommon::Time::now()-timestamp).toNSec());
+		DBG_PRINTF("[scanDataCallback]%f\n", (NS_NaviCommon::Time::now()-timestamp).toSec());
 		//DBG_PRINTF("[scanDataCallback]%f\n", timestamp.toSec());
 		/*
 		DBG_PRINTF("\n");
