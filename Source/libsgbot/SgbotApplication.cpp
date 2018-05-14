@@ -14,6 +14,8 @@
 #define DBG_PRINTF
 #endif
 #include <stdio.h>
+#include <Time/Time.h>
+
 
 namespace NS_Sgbot
 {
@@ -140,7 +142,7 @@ namespace NS_Sgbot
 
 		if(!running)
 			return;
-
+		NS_NaviCommon::Time timestamp =  NS_NaviCommon::Time::now();
 		laser.clear();
 		sgbot::Point2D origin;
 		origin.x() = 0.0f;
@@ -166,6 +168,8 @@ namespace NS_Sgbot
 			angle += scan.angle_increment;
 		}
 		mapping->updateByScan(laser);
+		DBG_PRINTF("[scanDataCallback]%f\n", (NS_NaviCommon::Time::now()-timestamp).toNSec());
+		//DBG_PRINTF("[scanDataCallback]%f\n", timestamp.toSec());
 		/*
 		DBG_PRINTF("\n");
 		DBG_PRINTF("-------------------------------------\n");
