@@ -6,7 +6,7 @@
  */
 #include "SgbotApplication.h"
 
-//#define USE_DBG
+#define USE_DBG
 #ifdef USE_DBG
 #include <stdio.h>
 #define DBG_PRINTF	printf
@@ -64,7 +64,7 @@ namespace NS_Sgbot
 		update_occupied_factor_ = parameter.getParameter("update_occupied_factor", 0.9f);
 		min_update_theta_ = parameter.getParameter("min_udpate_theta", 0.9f);
 		min_update_distance_ = parameter.getParameter("min_udpate_distance", 0.4f);
-
+/*
 		DBG_PRINTF("-----------------------\n");
 		DBG_PRINTF("update_map_level:%d\n", update_map_level_);
 		DBG_PRINTF("map_update_frequency:%f\n", map_update_frequency_);
@@ -79,6 +79,7 @@ namespace NS_Sgbot
 		DBG_PRINTF("min_update_theta:%f\n", min_update_theta_);
 		DBG_PRINTF("min_update_distance:%f\n", min_update_distance_);
 		DBG_PRINTF("-----------------------\n");
+		*/
 	}
 
 	static inline void transformTFToMsg(const sgbot::tf::Transform2D& bt,
@@ -147,11 +148,12 @@ namespace NS_Sgbot
 
 		laser.setOrigin(origin);
 		float angle = scan.angle_min;
+/*
 		DBG_PRINTF("------------------laser--------------\n");
 		DBG_PRINTF("angle_min:%f\n", scan.angle_min);
 		DBG_PRINTF("angle_increment:%f\n", scan.angle_increment);
 		DBG_PRINTF("ranges:%d\n", scan.ranges.size());
-
+*/
 		for(int i=0;i<scan.ranges.size();++i)
 		{
 			float dist = scan.ranges[i];
@@ -159,13 +161,15 @@ namespace NS_Sgbot
 			if((dist > scan.range_min) && (dist<(scan.range_max-0.1f)))
 			{
 				laser.addBeam(angle, dist);
-				DBG_PRINTF("(%f,%f),", angle, dist);
+				//DBG_PRINTF("(%f,%f),", angle, dist);
 			}
 			angle += scan.angle_increment;
 		}
 		mapping->updateByScan(laser);
+		/*
 		DBG_PRINTF("\n");
 		DBG_PRINTF("-------------------------------------\n");
+		*/
 		//std::cout<<laser;
 
 		/*
@@ -257,7 +261,7 @@ namespace NS_Sgbot
 					ret += sprintf(buf+ret, "[%f,%f,%f]",
 								odom_pose.odom.pose.position.x,
 								odom_pose.odom.pose.position.y,
-								sgbot::math::asin(odom_pose.odom.pose.orientation.z));
+								2*sgbot::math::asin(odom_pose.odom.pose.orientation.z));
 					ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.odom.twist.linear.x, odom_pose.odom.twist.angular.z);
 					write(log_fd, buf, ret);
 
