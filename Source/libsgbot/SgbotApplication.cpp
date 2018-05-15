@@ -21,19 +21,25 @@ namespace NS_Sgbot
 {
 	SgbotApplication::SgbotApplication()
 	{
-		map_srv = new NS_Service::Server<NS_ServiceType::ServiceMap>(
-				"MAP", boost::bind(&SgbotApplication::mapService, this, _1));
+
+
 		laser_sub = new NS_DataSet::Subscriber<NS_DataType::LaserScan>(
 				"LASER_SCAN",
 				boost::bind(&SgbotApplication::scanDataCallback, this, _1));
-	    map_tf_srv = new NS_Service::Server< NS_ServiceType::ServiceTransform >(
+	    map_tf_srv = new NS_Service::Server< sgbot::tf::Transform2D >(
 	        "ODOM_MAP_TF",
 	        boost::bind(&SgbotApplication::mapTransformService, this, _1));
-	    odom_tf_cli = new NS_Service::Client< NS_ServiceType::ServiceTransform >(
+	    odom_tf_cli = new NS_Service::Client< sgbot::tf::Transform2D >(
 	        "BASE_ODOM_TF");
 
-	    odom_pose_cli = new NS_Service::Client< NS_ServiceType::ServiceOdometry>(
+	    odom_pose_cli = new NS_Service::Client< NS_ServiceType::ServiceOdometry >(
 	    		"BASE_ODOM");
+
+		map_srv = new NS_Service::Server<sgbot::Map2D>(
+				"MAP", boost::bind(&SgbotApplication::mapService, this, _1));
+
+		pose_srv = new NS_Service::Server<sgbot::Pose2D>(
+				"POSE", boost::bind(&SgbotApplication::poseService, this, _1));
 	}
 
 	SgbotApplication::~SgbotApplication()
@@ -43,6 +49,7 @@ namespace NS_Sgbot
 		delete laser_sub;
 		delete map_tf_srv;
 		delete odom_tf_cli;
+		delete pose_srv;
 		close(log_fd);
 		running = false;
 		update_map_thread.join();
@@ -115,9 +122,11 @@ namespace NS_Sgbot
 		bt.setValue(x, y, theta, scalar);
 	}
 
-	void SgbotApplication::mapService(NS_ServiceType::ServiceMap &srv_map)
+	void SgbotApplication::mapService(sgbot::Map2D& srv_map)
 	{
 		boost::mutex::scoped_lock map_mutex(map_lock);
+		srv_map = map;
+		/*
 		if(map.info.width&&map.info.height)
 		{
 			srv_map.map = map;
@@ -128,12 +137,14 @@ namespace NS_Sgbot
 			console.warning("Get map failure!");
 			srv_map.result = false;
 		}
+		*/
 	}
 
-	void SgbotApplication::mapTransformService(NS_ServiceType::ServiceTransform& transform)
+	void SgbotApplication::mapTransformService(sgbot::tf::Transform2D& transform)
 	{
 		boost::mutex::scoped_lock map_tf_mutex(map_to_odom_lock_);
-		transformTFToMsg(map_to_odom_, transform.transform);
+		//transformTFToMsg(map_to_odom_, transform.transform);
+		transform = map_to_odom_;
 	}
 
 	void SgbotApplication::scanDataCallback(NS_DataType::LaserScan &scan)
@@ -188,18 +199,25 @@ namespace NS_Sgbot
 	     */
 		sgbot::tf::Transform2D odom_to_base;
 
-	    NS_ServiceType::ServiceTransform base_odom_tf;
+	    //NS_ServiceType::ServiceTransform base_odom_tf;
+		sgbot::tf::Transform2D base_odom_tf;
 
 	    if(odom_tf_cli->call(base_odom_tf))
 	    {
 	      boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
 
-	      transformMsgToTF(base_odom_tf.transform, odom_to_base);
+	     // transformMsgToTF(base_odom_tf.transform, odom_to_base);
 	      sgbot::Pose2D pose = mapping->getPose();
+	      pose_ = mapping->getPose();
 	      sgbot::tf::Transform2D map_to_base = sgbot::tf::Transform2D(pose.x(), pose.y(), pose.theta(), 1);
 
 	      map_to_odom_ = sgbot::tf::Transform2D(map_to_base * odom_to_base.inverse());
 	    }
+	}
+	void SgbotApplication::poseService(sgbot::Pose2D &srv_pose)
+	{
+		boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
+		srv_pose = pose_;
 	}
 
 	void SgbotApplication::getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d)
@@ -249,7 +267,7 @@ namespace NS_Sgbot
 				if(mapping->hasUpdatedMap(update_map_level_))
 				{
 					sgbot::Map2D map2d = mapping->getMap(update_map_level_);
-					getMap(map, map2d);
+					//getMap(map, map2d);
 					DBG_PRINTF("update map\n");
 
 					/*
