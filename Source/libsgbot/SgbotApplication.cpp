@@ -145,9 +145,26 @@ namespace NS_Sgbot
 
 	void SgbotApplication::mapTransformService(sgbot::tf::Transform2D& transform)
 	{
-		boost::mutex::scoped_lock map_tf_mutex(map_to_odom_lock_);
-		//transformTFToMsg(map_to_odom_, transform.transform);
-		transform = map_to_odom_;
+		//boost::mutex::scoped_lock map_tf_mutex(map_to_odom_lock_);
+
+		sgbot::tf::Transform2D odom_to_base;
+
+	    //NS_ServiceType::ServiceTransform base_odom_tf;
+		sgbot::tf::Transform2D base_odom_tf;
+
+	    if(odom_tf_cli->call(base_odom_tf))
+	    {
+	      boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
+
+	     // transformMsgToTF(base_odom_tf.transform, odom_to_base);
+	      sgbot::Pose2D pose = mapping->getPose();
+	      pose_ = pose;
+	      sgbot::tf::Transform2D map_to_base = sgbot::tf::Transform2D(pose.x(), pose.y(), pose.theta(), 1);
+
+	      map_to_odom_ = sgbot::tf::Transform2D(map_to_base * odom_to_base.inverse());
+
+	    }
+	    transform = map_to_odom_;
 	}
 
 	void SgbotApplication::scanDataCallback(NS_DataType::LaserScan &scan)
@@ -200,6 +217,7 @@ namespace NS_Sgbot
 	    /*
 	     * process map->odom transform
 	     */
+#if 0
 		sgbot::tf::Transform2D odom_to_base;
 
 	    //NS_ServiceType::ServiceTransform base_odom_tf;
@@ -211,16 +229,19 @@ namespace NS_Sgbot
 
 	     // transformMsgToTF(base_odom_tf.transform, odom_to_base);
 	      sgbot::Pose2D pose = mapping->getPose();
-	      pose_ = mapping->getPose();
+	      pose_ = pose;
 	      sgbot::tf::Transform2D map_to_base = sgbot::tf::Transform2D(pose.x(), pose.y(), pose.theta(), 1);
 
 	      map_to_odom_ = sgbot::tf::Transform2D(map_to_base * odom_to_base.inverse());
 	    }
+#endif
 	}
 	void SgbotApplication::poseService(sgbot::Pose2D &srv_pose)
 	{
 		boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
-		srv_pose = pose_;
+		srv_pose = mapping->getPose();
+		DBG_PRINTF("[poseService][%f,%f,%f]\n", srv_pose.x(), srv_pose.y(), srv_pose.theta());
+		//srv_pose = pose_;
 	}
 #if 0
 	void SgbotApplication::getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d)
