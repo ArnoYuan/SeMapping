@@ -280,14 +280,16 @@ namespace NS_Sgbot
 					sgbot::Pose2D pose = mapping->getPose();
 					sgbot::la::Matrix<float , 3, 3> cov = mapping->getPoseCovariance();
 					sgbot::Odometry odom_pose;
-					odom_pose_cli->call(odom_pose);
-					int ret = 0;
-					char buf[256];
-					ret += sprintf(buf+ret, "[%f,%f,%f]", pose.x(), pose.y(), pose.theta());
-					ret += sprintf(buf+ret, "[%f,%f,%f]",
-								odom_pose.pose2d.x(), odom_pose.pose2d.y(), odom_pose.pose2d.theta());
-					ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.velocity2d.linear, odom_pose.velocity2d.angular);
-					write(log_fd, buf, ret);
+					if(odom_pose_cli->call(odom_pose))
+					{
+						int ret = 0;
+						char buf[256];
+						ret += sprintf(buf+ret, "[%f,%f,%f]", pose.x(), pose.y(), pose.theta());
+						ret += sprintf(buf+ret, "[%f,%f,%f]",
+									odom_pose.pose2d.x(), odom_pose.pose2d.y(), odom_pose.pose2d.theta());
+						ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.velocity2d.linear, odom_pose.velocity2d.angular);
+						write(log_fd, buf, ret);
+					}
 
 				}
 			}
