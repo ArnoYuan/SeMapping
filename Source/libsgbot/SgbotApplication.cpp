@@ -17,6 +17,7 @@
 #include <Time/Time.h>
 
 
+
 namespace NS_Sgbot
 {
 	SgbotApplication::SgbotApplication()
@@ -32,7 +33,7 @@ namespace NS_Sgbot
 	    odom_tf_cli = new NS_Service::Client< sgbot::tf::Transform2D >(
 	        "BASE_ODOM_TF");
 
-	    odom_pose_cli = new NS_Service::Client< NS_ServiceType::ServiceOdometry >(
+	    odom_pose_cli = new NS_Service::Client< sgbot::Odometry >(
 	    		"BASE_ODOM");
 
 		map_srv = new NS_Service::Server<sgbot::Map2D>(
@@ -40,6 +41,7 @@ namespace NS_Sgbot
 
 		pose_srv = new NS_Service::Server<sgbot::Pose2D>(
 				"POSE", boost::bind(&SgbotApplication::poseService, this, _1));
+		map = sgbot::Map2D();
 	}
 
 	SgbotApplication::~SgbotApplication()
@@ -125,6 +127,7 @@ namespace NS_Sgbot
 	void SgbotApplication::mapService(sgbot::Map2D& srv_map)
 	{
 		boost::mutex::scoped_lock map_mutex(map_lock);
+		printf("map service...\n");
 		srv_map = map;
 		/*
 		if(map.info.width&&map.info.height)
@@ -219,7 +222,7 @@ namespace NS_Sgbot
 		boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
 		srv_pose = pose_;
 	}
-
+#if 0
 	void SgbotApplication::getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d)
 	{
 		int sizeX = map2d.getWidth();
@@ -256,7 +259,7 @@ namespace NS_Sgbot
 			}
 		}
 	}
-
+#endif
 	void SgbotApplication::updateMapLoop(double frequency)
 	{
 		NS_NaviCommon::Rate r(frequency);
@@ -267,6 +270,7 @@ namespace NS_Sgbot
 				if(mapping->hasUpdatedMap(update_map_level_))
 				{
 					sgbot::Map2D map2d = mapping->getMap(update_map_level_);
+					map = map2d;
 					//getMap(map, map2d);
 					DBG_PRINTF("update map\n");
 
@@ -275,16 +279,14 @@ namespace NS_Sgbot
 					 */
 					sgbot::Pose2D pose = mapping->getPose();
 					sgbot::la::Matrix<float , 3, 3> cov = mapping->getPoseCovariance();
-					NS_ServiceType::ServiceOdometry odom_pose;
+					sgbot::Odometry odom_pose;
 					odom_pose_cli->call(odom_pose);
 					int ret = 0;
 					char buf[256];
 					ret += sprintf(buf+ret, "[%f,%f,%f]", pose.x(), pose.y(), pose.theta());
 					ret += sprintf(buf+ret, "[%f,%f,%f]",
-								odom_pose.odom.pose.position.x,
-								odom_pose.odom.pose.position.y,
-								2*sgbot::math::asin(odom_pose.odom.pose.orientation.z));
-					ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.odom.twist.linear.x, odom_pose.odom.twist.angular.z);
+								odom_pose.pose2d.x(), odom_pose.pose2d.y(), odom_pose.pose2d.theta());
+					ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.velocity2d.linear, odom_pose.velocity2d.angular);
 					write(log_fd, buf, ret);
 
 				}

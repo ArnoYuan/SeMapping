@@ -23,6 +23,7 @@
 #include <Service/ServiceType/ServiceOdometry.h>
 
 #include <slam/hector/mapping.h>
+#include <type/odometry.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -52,7 +53,7 @@ namespace NS_Sgbot
 
 		    NS_Service::Client< sgbot::tf::Transform2D >* odom_tf_cli;
 
-		    NS_Service::Client<NS_ServiceType::ServiceOdometry> *odom_pose_cli;
+		    NS_Service::Client<sgbot::Odometry> *odom_pose_cli;
 
 		    NS_Service::Server<sgbot::Pose2D>* pose_srv;
 
