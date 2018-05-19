@@ -57,8 +57,10 @@ namespace NS_Sgbot
 
 		    NS_Service::Server<sgbot::Pose2D>* pose_srv;
 
+		    NS_Service::Server<sgbot::Pose2D>* occ_pose_srv;
+
 		    sgbot::tf::Transform2D map_to_odom_;
-		    boost::mutex map_to_odom_lock_;
+		    //boost::mutex map_to_odom_lock_;
 		    boost::mutex map_lock;
 		    boost::thread update_map_thread;
 
@@ -86,6 +88,8 @@ namespace NS_Sgbot
 		    void scanDataCallback(NS_DataType::LaserScan &scan);
 		    //Eigen::Matrix3f getCovariance(sgbot::la::Matrix<float, 3, 3>& cov);
 		    void poseService(sgbot::Pose2D &srv_pose);
+
+		    void occPoseService(sgbot::Pose2D &srv_occ_pose);
 
 		    void getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d);
 		public:

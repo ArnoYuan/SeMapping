@@ -17,6 +17,7 @@
 #include <Time/Time.h>
 
 
+#define USE_POSE_LOG
 
 namespace NS_Sgbot
 {
@@ -41,7 +42,12 @@ namespace NS_Sgbot
 
 		pose_srv = new NS_Service::Server<sgbot::Pose2D>(
 				"POSE", boost::bind(&SgbotApplication::poseService, this, _1));
+
+		occ_pose_srv = new NS_Service::Server<sgbot::Pose2D>(
+				"OCC_POSE", boost::bind(&SgbotApplication::occPoseService, this, _1));
+
 		map = sgbot::Map2D();
+
 	}
 
 	SgbotApplication::~SgbotApplication()
@@ -52,7 +58,9 @@ namespace NS_Sgbot
 		delete map_tf_srv;
 		delete odom_tf_cli;
 		delete pose_srv;
+#ifdef USE_POSE_LOG
 		close(log_fd);
+#endif
 		running = false;
 		update_map_thread.join();
 	}
@@ -75,6 +83,7 @@ namespace NS_Sgbot
 		update_occupied_factor_ = parameter.getParameter("update_occupied_factor", 0.9f);
 		min_update_theta_ = parameter.getParameter("min_udpate_theta", 0.9f);
 		min_update_distance_ = parameter.getParameter("min_udpate_distance", 0.4f);
+
 /*
 		DBG_PRINTF("-----------------------\n");
 		DBG_PRINTF("update_map_level:%d\n", update_map_level_);
@@ -154,7 +163,7 @@ namespace NS_Sgbot
 
 	    if(odom_tf_cli->call(base_odom_tf))
 	    {
-	      boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
+	      boost::mutex::scoped_lock map_mutex(map_lock);
 
 	     // transformMsgToTF(base_odom_tf.transform, odom_to_base);
 	      sgbot::Pose2D pose = mapping->getPose();
@@ -238,11 +247,23 @@ namespace NS_Sgbot
 	}
 	void SgbotApplication::poseService(sgbot::Pose2D &srv_pose)
 	{
-		boost::mutex::scoped_lock map_mutex(map_to_odom_lock_);
+		boost::mutex::scoped_lock map_mutex(map_lock);
 		srv_pose = mapping->getPose();
 		DBG_PRINTF("[poseService][%f,%f,%f]\n", srv_pose.x(), srv_pose.y(), srv_pose.theta());
 		//srv_pose = pose_;
 	}
+
+	void SgbotApplication::occPoseService(sgbot::Pose2D &srv_occ_pose)
+	{
+		boost::mutex::scoped_lock map_mutex(map_lock);
+		sgbot::Pose2D pose = mapping->getPose();
+
+		sgbot::Point2D origin = map.getOrigin();
+		pose.x() = (pose.x()-origin.x())/map.resolution_;
+		pose.y() = (pose.y()-origin.y())/map.resolution_;
+		srv_occ_pose = pose;
+	}
+
 #if 0
 	void SgbotApplication::getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d)
 	{
@@ -281,6 +302,7 @@ namespace NS_Sgbot
 		}
 	}
 #endif
+
 	void SgbotApplication::updateMapLoop(double frequency)
 	{
 		NS_NaviCommon::Rate r(frequency);
@@ -294,7 +316,7 @@ namespace NS_Sgbot
 					map = map2d;
 					//getMap(map, map2d);
 					DBG_PRINTF("update map\n");
-
+#ifdef USE_POSE_LOG
 					/*
 					 * log
 					 */
@@ -311,7 +333,7 @@ namespace NS_Sgbot
 						ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.velocity2d.linear, odom_pose.velocity2d.angular);
 						write(log_fd, buf, ret);
 					}
-
+#endif
 				}
 			}
 			r.sleep();
@@ -321,13 +343,13 @@ namespace NS_Sgbot
 	void SgbotApplication::run()
 	{
 		loadParameters();
-
+#ifdef USE_POSE_LOG
 		log_fd = open("/tmp/sgbot_log.txt", O_RDWR|O_CREAT);
 		if(log_fd<0)
 		{
 			printf("sgbot_log file open failed.\n");
 		}
-
+#endif
 		sgbot::slam::hector::HectorMappingConfig config;
 
 		config.map_properties.resolution = map_resolution_;
