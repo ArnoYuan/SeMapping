@@ -43,8 +43,11 @@ namespace NS_Sgbot
 		pose_srv = new NS_Service::Server<sgbot::Pose2D>(
 				"POSE", boost::bind(&SgbotApplication::poseService, this, _1));
 
-		occ_pose_srv = new NS_Service::Server<sgbot::Pose2D>(
-				"OCC_POSE", boost::bind(&SgbotApplication::occPoseService, this, _1));
+		display_pose_srv = new NS_Service::Server<sgbot::Pose2D>(
+				"DISPALY_POSE", boost::bind(&SgbotApplication::displayPoseService, this, _1));
+
+		display_map_srv = new NS_Service::Server<sgbot::Map2D>(
+				"DISPLAY_MAP", boost::bind(&SgbotApplication::displayMapService, this, _1));
 
 		map = sgbot::Map2D();
 
@@ -72,6 +75,7 @@ namespace NS_Sgbot
 		parameter.loadConfigurationFile("sgbot_mapping.xml");
 
 		update_map_level_ = parameter.getParameter("update_map_level", 1);
+		display_map_level_ = parameter.getParameter("display_map_level", 0);
 		map_update_frequency_ = parameter.getParameter("map_update_frequency", 2.0f);
 		map_resolution_ = parameter.getParameter("map_resolution", 0.025f);
 		map_width_ = parameter.getParameter("map_width", 1024);
@@ -150,6 +154,12 @@ namespace NS_Sgbot
 			srv_map.result = false;
 		}
 		*/
+	}
+
+	void SgbotApplication::displayMapService(sgbot::Map2D& srv_display_map)
+	{
+		boost::mutex::scoped_lock map_mutex(map_lock);
+		srv_display_map = display_map;
 	}
 
 	void SgbotApplication::mapTransformService(sgbot::tf::Transform2D& transform)
@@ -253,15 +263,15 @@ namespace NS_Sgbot
 		//srv_pose = pose_;
 	}
 
-	void SgbotApplication::occPoseService(sgbot::Pose2D &srv_occ_pose)
+	void SgbotApplication::displayPoseService(sgbot::Pose2D &srv_display_pose)
 	{
 		boost::mutex::scoped_lock map_mutex(map_lock);
 		sgbot::Pose2D pose = mapping->getPose();
 
-		sgbot::Point2D origin = map.getOrigin();
-		pose.x() = (pose.x()-origin.x())/map.resolution_;
-		pose.y() = (pose.y()-origin.y())/map.resolution_;
-		srv_occ_pose = pose;
+		sgbot::Point2D origin = display_map.getOrigin();
+		pose.x() = (pose.x()-origin.x())/display_map.resolution_;
+		pose.y() = (pose.y()-origin.y())/display_map.resolution_;
+		srv_display_pose = pose;
 	}
 
 #if 0
@@ -334,6 +344,10 @@ namespace NS_Sgbot
 						write(log_fd, buf, ret);
 					}
 #endif
+				}
+				if(mapping->hasUpdatedMap(display_map_level_))
+				{
+					display_map = mapping->getMap(display_map_level_);
 				}
 			}
 			r.sleep();

@@ -43,6 +43,7 @@ namespace NS_Sgbot
 			sgbot::slam::hector::HectorMapping *mapping;
 			//NS_DataType::OccupancyGrid map;
 			sgbot::Map2D map;
+			sgbot::Map2D display_map;
 
 			sgbot::Pose2D pose_;
 		    NS_Service::Server< sgbot::Map2D >* map_srv;
@@ -57,7 +58,9 @@ namespace NS_Sgbot
 
 		    NS_Service::Server<sgbot::Pose2D>* pose_srv;
 
-		    NS_Service::Server<sgbot::Pose2D>* occ_pose_srv;
+		    NS_Service::Server<sgbot::Pose2D>* display_pose_srv;
+
+		    NS_Service::Server<sgbot::Map2D>* display_map_srv;
 
 		    sgbot::tf::Transform2D map_to_odom_;
 		    //boost::mutex map_to_odom_lock_;
@@ -65,6 +68,7 @@ namespace NS_Sgbot
 		    boost::thread update_map_thread;
 
 		    int update_map_level_;
+		    int display_map_level_;
 
 		    float map_update_frequency_;
 
@@ -89,9 +93,11 @@ namespace NS_Sgbot
 		    //Eigen::Matrix3f getCovariance(sgbot::la::Matrix<float, 3, 3>& cov);
 		    void poseService(sgbot::Pose2D &srv_pose);
 
-		    void occPoseService(sgbot::Pose2D &srv_occ_pose);
+		    void displayPoseService(sgbot::Pose2D &srv_occ_pose);
 
-		    void getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d);
+		    void displayMapService(sgbot::Map2D &srv_display_map);
+
+		    //void getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d);
 		public:
 			virtual void
 			run();
