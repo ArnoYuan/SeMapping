@@ -262,7 +262,7 @@ namespace NS_Sgbot
 	{
 		if(!running)
 			return;
-		boost::mutex::scoped_lock map_mutex(map_lock);
+		//boost::mutex::scoped_lock map_mutex(map_lock);
 		srv_pose = mapping->getPose();
 		DBG_PRINTF("[poseService][%f,%f,%f]\n", srv_pose.x(), srv_pose.y(), srv_pose.theta());
 		//srv_pose = pose_;
