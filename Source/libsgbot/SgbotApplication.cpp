@@ -139,6 +139,8 @@ namespace NS_Sgbot
 
 	void SgbotApplication::mapService(sgbot::Map2D& srv_map)
 	{
+		if(!running)
+			return;
 		boost::mutex::scoped_lock map_mutex(map_lock);
 		printf("map service...\n");
 		srv_map = map;
@@ -177,8 +179,9 @@ namespace NS_Sgbot
 
 	     // transformMsgToTF(base_odom_tf.transform, odom_to_base);
 	      sgbot::Pose2D pose = mapping->getPose();
+	      sgbot::Point2D origin = map.getOrigin();
 	      pose_ = pose;
-	      sgbot::tf::Transform2D map_to_base = sgbot::tf::Transform2D(pose.x(), pose.y(), pose.theta(), 1);
+	      sgbot::tf::Transform2D map_to_base = sgbot::tf::Transform2D(pose.x()-origin.x(), pose.y()-origin.y(), pose.theta(), 1);
 
 	      map_to_odom_ = sgbot::tf::Transform2D(map_to_base * odom_to_base.inverse());
 
@@ -257,6 +260,8 @@ namespace NS_Sgbot
 	}
 	void SgbotApplication::poseService(sgbot::Pose2D &srv_pose)
 	{
+		if(!running)
+			return;
 		boost::mutex::scoped_lock map_mutex(map_lock);
 		srv_pose = mapping->getPose();
 		DBG_PRINTF("[poseService][%f,%f,%f]\n", srv_pose.x(), srv_pose.y(), srv_pose.theta());
@@ -265,6 +270,8 @@ namespace NS_Sgbot
 
 	void SgbotApplication::displayPoseService(sgbot::Pose2D &srv_display_pose)
 	{
+		if(!running)
+			return;
 		boost::mutex::scoped_lock map_mutex(map_lock);
 		sgbot::Pose2D pose = mapping->getPose();
 
