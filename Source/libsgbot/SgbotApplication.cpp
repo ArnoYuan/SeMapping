@@ -234,7 +234,7 @@ namespace NS_Sgbot
 
 			laser_scan_ = scan;
 			map_init_count++;
-			DBG_PRINTF("laser init scan :%d", map_init_count);
+			DBG_PRINTF("laser init scan :%d\n", map_init_count);
 
 		}
 	    /*
@@ -324,19 +324,22 @@ namespace NS_Sgbot
 	void SgbotApplication::updateMapLoop(double frequency)
 	{
 		NS_NaviCommon::Rate r(frequency);
-		if(map_inited==0)
-		{
-			boost::mutex::scoped_lock map_mutex(map_lock);
-			DBG_PRINTF("map_init_count=%d", map_init_count);
-			if(map_init_count>=20)
-			{
-				DBG_PRINTF("matchMap ...\n");
-				matchMap(laser_scan_);
-				map_inited = 1;
-			}
-		}
+
+
 		while(running)
 		{
+			if(map_inited==0)
+			{
+				boost::mutex::scoped_lock map_mutex(map_lock);
+				DBG_PRINTF("map_init_count=%d", map_init_count);
+				if(map_init_count>=20)
+				{
+					DBG_PRINTF("matchMap ...\n");
+					matchMap(laser_scan_);
+					map_inited = 1;
+				}
+			}
+
 			{
 				boost::mutex::scoped_lock map_mutex(map_lock);
 				if(mapping->hasUpdatedMap(update_map_level_))
