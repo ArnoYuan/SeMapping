@@ -234,7 +234,7 @@ namespace NS_Sgbot
 
 			laser_scan_ = scan;
 			map_init_count++;
-			console.debug("laser init scan :%d", map_init_count);
+			DBG_PRINTF("laser init scan :%d", map_init_count);
 
 		}
 	    /*
@@ -327,7 +327,7 @@ namespace NS_Sgbot
 		if(map_inited==0)
 		{
 			boost::mutex::scoped_lock map_mutex(map_lock);
-			console.debug("map_init_count=%d", map_init_count);
+			DBG_PRINTF("map_init_count=%d", map_init_count);
 			if(map_init_count>=20)
 			{
 				DBG_PRINTF("matchMap ...\n");
