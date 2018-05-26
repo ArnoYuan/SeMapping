@@ -16,6 +16,7 @@
 #include <DataSet/DataType/OccupancyGrid.h>
 #include <Service/ServiceType/ServiceMap.h>
 #include <DataSet/Subscriber.h>
+#include <DataSet/Publisher.h>
 #include <Service/Server.h>
 #include <DataSet/DataType/LaserScan.h>
 #include <Parameter/Parameter.h>
@@ -31,6 +32,13 @@
 
 namespace NS_Sgbot
 {
+	struct _match_point{
+		int count;
+		int distance;
+		float theta;
+	};
+	typedef struct _match_point MatchPoint;
+
 
 	class SgbotApplication: public Application
 	{
@@ -46,6 +54,7 @@ namespace NS_Sgbot
 			sgbot::Map2D display_map;
 
 			sgbot::Pose2D pose_;
+
 		    NS_Service::Server< sgbot::Map2D >* map_srv;
 
 		    NS_DataSet::Subscriber< NS_DataType::LaserScan >* laser_sub;
@@ -61,6 +70,8 @@ namespace NS_Sgbot
 		    NS_Service::Server<sgbot::Pose2D>* display_pose_srv;
 
 		    NS_Service::Server<sgbot::Map2D>* display_map_srv;
+
+		    NS_DataSet::Publisher<sgbot::Velocity2D>* twist_pub;
 
 		    sgbot::tf::Transform2D map_to_odom_;
 		    //boost::mutex map_to_odom_lock_;
@@ -83,6 +94,10 @@ namespace NS_Sgbot
 			float update_occupied_factor_;
 			bool use_multi_level_maps_;
 			int log_fd;
+			int map_init_count;
+			int map_inited;
+			NS_DataType::LaserScan laser_scan_;
+			std::vector<MatchPoint> match_points_;
 
 		private:
 		    void loadParameters();
@@ -96,6 +111,12 @@ namespace NS_Sgbot
 		    void displayPoseService(sgbot::Pose2D &srv_occ_pose);
 
 		    void displayMapService(sgbot::Map2D &srv_display_map);
+
+		    void makeTurn(float theta);
+
+		    void matchMap(NS_DataType::LaserScan &scan);
+
+		    MatchPoint matchMapLaser(NS_DataType::LaserScan &scan, float theta);
 
 		    //void getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d);
 		public:

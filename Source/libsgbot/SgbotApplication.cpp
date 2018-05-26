@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <Time/Time.h>
 
+#define DEG2RAD(x) ((x)*M_PI/180.)
+#define RAD2DEG(x) ((x)*180./M_PI)
 
 #define USE_POSE_LOG
 
@@ -48,6 +50,9 @@ namespace NS_Sgbot
 
 		display_map_srv = new NS_Service::Server<sgbot::Map2D>(
 				"DISPLAY_MAP", boost::bind(&SgbotApplication::displayMapService, this, _1));
+
+		twist_pub = new NS_DataSet::Publisher<sgbot::Velocity2D>(
+				"TWIST");
 
 		map = sgbot::Map2D();
 
@@ -137,6 +142,8 @@ namespace NS_Sgbot
 		bt.setValue(x, y, theta, scalar);
 	}
 
+
+
 	void SgbotApplication::mapService(sgbot::Map2D& srv_map)
 	{
 		if(!running)
@@ -195,47 +202,40 @@ namespace NS_Sgbot
 
 		if(!running)
 			return;
-		NS_NaviCommon::Time timestamp =  NS_NaviCommon::Time::now();
-		laser.clear();
-		sgbot::Point2D origin;
-		origin.x() = 0.0f;
-		origin.y() = 0.0f;
 
-		laser.setOrigin(origin);
-		float angle = scan.angle_min;
-/*
-		DBG_PRINTF("------------------laser--------------\n");
-		DBG_PRINTF("angle_min:%f\n", scan.angle_min);
-		DBG_PRINTF("angle_increment:%f\n", scan.angle_increment);
-		DBG_PRINTF("ranges:%d\n", scan.ranges.size());
-*/
-		for(int i=0;i<scan.ranges.size();++i)
+		if(map_inited)
 		{
-			float dist = scan.ranges[i];
-			//dist = 1;
-			if((dist > scan.range_min) && (dist<(scan.range_max-0.1f)))
+			NS_NaviCommon::Time timestamp =  NS_NaviCommon::Time::now();
+			laser.clear();
+			sgbot::Point2D origin;
+			origin.x() = 0.0f;
+			origin.y() = 0.0f;
+
+			laser.setOrigin(origin);
+			float angle = scan.angle_min;
+
+			for(int i=0;i<scan.ranges.size();++i)
 			{
-				laser.addBeam(angle, dist);
-				//DBG_PRINTF("(%f,%f),", angle, dist);
+				float dist = scan.ranges[i];
+				//dist = 1;
+				if((dist > scan.range_min) && (dist<(scan.range_max-0.1f)))
+				{
+					laser.addBeam(angle, dist);
+					//DBG_PRINTF("(%f,%f),", angle, dist);
+				}
+				angle += scan.angle_increment;
 			}
-			angle += scan.angle_increment;
+			mapping->updateByScan(laser);
+			DBG_PRINTF("[scanDataCallback]%f\n", (NS_NaviCommon::Time::now()-timestamp).toSec());
 		}
-		mapping->updateByScan(laser);
-		DBG_PRINTF("[scanDataCallback]%f\n", (NS_NaviCommon::Time::now()-timestamp).toSec());
-		//DBG_PRINTF("[scanDataCallback]%f\n", timestamp.toSec());
-		/*
-		DBG_PRINTF("\n");
-		DBG_PRINTF("-------------------------------------\n");
-		*/
-		//std::cout<<laser;
+		else
+		{
+			boost::mutex::scoped_lock map_mutex(map_lock);
 
-		/*
-		boost::mutex::scoped_lock map_tf_mutex(map_transform_lock);
-		sgbot::Pose2D pose = mapping->getPose();
-		sgbot::la::Matrix<float, 3, 3> pose_cov = mapping->getPoseCovariance();
+			laser_scan_ = scan;
+			map_init_count++;
 
-		map_transform_.setValue(pose.x(), pose.y(), pose.theta(), 1);
-	*/
+		}
 	    /*
 	     * process map->odom transform
 	     */
@@ -323,6 +323,15 @@ namespace NS_Sgbot
 	void SgbotApplication::updateMapLoop(double frequency)
 	{
 		NS_NaviCommon::Rate r(frequency);
+		if(map_inited==0)
+		{
+			boost::mutex::scoped_lock map_mutex(map_lock);
+			if(map_init_count>=20)
+			{
+				matchMap(laser_scan_);
+				map_inited = 1;
+			}
+		}
 		while(running)
 		{
 			{
@@ -359,6 +368,135 @@ namespace NS_Sgbot
 			}
 			r.sleep();
 		}
+	}
+
+	MatchPoint SgbotApplication::matchMapLaser(NS_DataType::LaserScan &scan, float theta)
+	{
+
+		std::vector<int> x_values;
+		int i = 0;
+		x_values.resize(map_width_);
+		for(i=0;i<x_values.size();i++)
+		{
+			x_values[i]=0;
+		}
+		float angle = scan.angle_min+theta;
+
+		for(i=0;i<scan.ranges.size();i++)
+		{
+			float distance = scan.ranges[i];
+			if(distance>scan.range_min&&distance<scan.range_max)
+			{
+				int x = scan.ranges[distance*sgbot::math::cos(angle)]/map_resolution_+map_width_/2;
+				x_values[x]++;
+			}
+			angle += scan.angle_increment;
+			if(angle>M_PI)
+			{
+				angle-=2*M_PI;
+			}
+		}
+		int index = 0;
+		int max_value = 0;
+		max_value = x_values[0];
+		for(i=0;i<x_values.size();i++)
+		{
+			if(max_value<x_values[i])
+			{
+				max_value = x_values[i];
+				index = i;
+			}
+		}
+		MatchPoint match_point;
+		match_point.count = max_value;
+		match_point.distance = index-map.height_/2;
+		match_point.theta = theta;
+
+		return match_point;
+	}
+
+	void SgbotApplication::makeTurn(float theta)
+	{
+		sgbot::Odometry origin_odom;
+		odom_pose_cli->call(origin_odom);
+		float end_theta = origin_odom.pose2d.theta()+theta;
+		for(;;)
+		{
+			sgbot::Odometry odom;
+			if(odom_pose_cli->call(odom))
+			{
+				if(theta>0)
+				{
+					if(odom.pose2d.theta()<origin_odom.pose2d.theta())
+						odom.pose2d.theta()+=2*M_PI;
+					if(odom.pose2d.theta()>=end_theta)
+					{
+						for(;;)
+						{
+							if(odom_pose_cli->call(odom))
+							{
+								if(odom.velocity2d.angular==0&&odom.velocity2d.linear==0)
+								{
+									return;
+								}
+							}
+							sgbot::Velocity2D velocity2d;
+							velocity2d.angular = 0;
+							velocity2d.linear = 0;
+							twist_pub->publish(velocity2d);
+							NS_NaviCommon::delay(50);
+						}
+					}
+				}
+				else
+				{
+					if(odom.pose2d.theta()>origin_odom.pose2d.theta())
+						odom.pose2d.theta()-=2*M_PI;
+					if(odom.pose2d.theta()<=end_theta)
+					{
+						for(;;)
+						{
+							if(odom_pose_cli->call(odom))
+							{
+								if(odom.velocity2d.angular==0&&odom.velocity2d.linear==0)
+								{
+									return;
+								}
+							}
+							sgbot::Velocity2D velocity2d;
+							velocity2d.angular = 0;
+							velocity2d.linear = 0;
+							twist_pub->publish(velocity2d);
+							NS_NaviCommon::delay(50);
+						}
+					}
+				}
+			}
+			NS_NaviCommon::delay(50);
+		}
+	}
+
+	void SgbotApplication::matchMap(NS_DataType::LaserScan &scan)
+	{
+		std::vector<MatchPoint> points;
+		points.resize(0);
+		float end_theta=DEG2RAD(120);
+		float delta_theta = DEG2RAD(1);
+		float theta=0;
+		for(theta=0;theta<end_theta;theta+=delta_theta)
+		{
+			points.push_back(matchMapLaser(scan, theta));
+		}
+		MatchPoint match_point=points[0];
+		for(int i=0;i<points.size();i++)
+		{
+			if(match_point.count<points[i].count)
+			{
+				match_point = points[i];
+			}
+		}
+		DBG_PRINTF("[count=%d][theta=%f][distance=%d]\n", match_point.count, RAD2DEG(match_point.theta), match_point.distance);
+		makeTurn(-match_point.theta);
 	}
 
 	void SgbotApplication::run()
