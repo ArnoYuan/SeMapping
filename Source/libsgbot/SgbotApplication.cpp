@@ -328,6 +328,7 @@ namespace NS_Sgbot
 			boost::mutex::scoped_lock map_mutex(map_lock);
 			if(map_init_count>=20)
 			{
+				DBG_PRINTF("matchMap ...\n");
 				matchMap(laser_scan_);
 				map_inited = 1;
 			}
@@ -535,6 +536,8 @@ namespace NS_Sgbot
 		mapping = new sgbot::slam::hector::HectorMapping(config);
 		//mapping = new sgbot::slam::hector::HectorMapping();
 		running = true;
+		map_inited = 0;
+		map_init_count = 0;
 		update_map_thread = boost::thread(
 				boost::bind(&SgbotApplication::updateMapLoop, this, map_update_frequency_));
 	}
@@ -543,6 +546,7 @@ namespace NS_Sgbot
 	{
 		console.message("sgbot is quitting!");
 		running = false;
+
 		update_map_thread.join();
 	}
 }
