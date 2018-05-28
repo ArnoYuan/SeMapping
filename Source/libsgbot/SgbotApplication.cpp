@@ -328,17 +328,7 @@ namespace NS_Sgbot
 
 		while(running)
 		{
-			if(map_inited==0)
-			{
-				boost::mutex::scoped_lock map_mutex(map_lock);
-				DBG_PRINTF("map_init_count=%d", map_init_count);
-				if(map_init_count>=20)
-				{
-					DBG_PRINTF("matchMap ...\n");
-					matchMap(laser_scan_);
-					map_inited = 1;
-				}
-			}
+
 
 			{
 				boost::mutex::scoped_lock map_mutex(map_lock);
@@ -373,6 +363,26 @@ namespace NS_Sgbot
 				}
 			}
 			r.sleep();
+		}
+	}
+
+	void SgbotApplication::matchMapLoop(double frequency)
+	{
+		NS_NaviCommon::Rate r(frequency);
+		while(running)
+		{
+			if(map_inited==0)
+			{
+				boost::mutex::scoped_lock map_mutex(map_lock);
+				DBG_PRINTF("map_init_count=%d", map_init_count);
+				if(map_init_count>=20)
+				{
+					DBG_PRINTF("matchMap ...\n");
+					matchMap(laser_scan_);
+					map_inited = 1;
+					return;
+				}
+			}
 		}
 	}
 
@@ -432,8 +442,10 @@ namespace NS_Sgbot
 		for(;;)
 		{
 			sgbot::Odometry odom;
+			DBG_PRINTF("make turn...\n");
 			if(odom_pose_cli->call(odom))
 			{
+				DBG_PRINTF("odom pose cli\n");
 				if(theta>0)
 				{
 					velocity2d.angular = 0.4;
@@ -581,6 +593,7 @@ namespace NS_Sgbot
 		map_init_count = 0;
 		update_map_thread = boost::thread(
 				boost::bind(&SgbotApplication::updateMapLoop, this, map_update_frequency_));
+		match_map_thread = boost::thread(boost::bind(&SgbotApplication::matchMapLoop, this, 100));
 	}
 
 	void SgbotApplication::quit()

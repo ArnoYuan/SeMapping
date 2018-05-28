@@ -77,6 +77,7 @@ namespace NS_Sgbot
 		    //boost::mutex map_to_odom_lock_;
 		    boost::mutex map_lock;
 		    boost::thread update_map_thread;
+		    boost::thread match_map_thread;
 
 		    int update_map_level_;
 		    int display_map_level_;
@@ -117,6 +118,8 @@ namespace NS_Sgbot
 		    void matchMap(NS_DataType::LaserScan &scan);
 
 		    MatchPoint matchMapLaser(NS_DataType::LaserScan &scan, float theta);
+
+		    void matchMapLoop(double frequency);
 
 		    //void getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d);
 		public:
