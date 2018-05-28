@@ -96,9 +96,14 @@ namespace NS_Sgbot
 			bool use_multi_level_maps_;
 			int log_fd;
 			int map_init_count;
+			int map_init_step;
 			int map_inited;
 			NS_DataType::LaserScan laser_scan_;
 			std::vector<MatchPoint> match_points_;
+			MatchPoint match_point_;
+			int match_point_threshold;
+			float match_angular_vel;
+
 
 		private:
 		    void loadParameters();
