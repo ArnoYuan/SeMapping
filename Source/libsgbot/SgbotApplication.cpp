@@ -206,7 +206,7 @@ namespace NS_Sgbot
 
 		if(!running)
 			return;
-
+		NS_NaviCommon::Time timestamp = NS_NaviCommon::Time::now();
 		if(map_init_step==0)
 		{
 			match_points_.resize(0);
@@ -230,14 +230,14 @@ namespace NS_Sgbot
 			if(abs(match_point_.count-match_point.count)>match_point_threshold)
 			{
 				map_init_step=3;
-				DBG_PRINTF("find match point:count=%d\n",match_point_.count);
+				DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
 			}
 			else
 				return;
 		}
 
 
-		NS_NaviCommon::Time timestamp = NS_NaviCommon::Time::now();
+		timestamp = NS_NaviCommon::Time::now();
 		laser.clear();
 		sgbot::Point2D origin;
 		origin.x() = 0.0f;
@@ -408,7 +408,7 @@ namespace NS_Sgbot
 					{
 						if(odom.pose2d.theta()<0)
 						{
-							odom.pose2d.theta()+=M_PI;
+							odom.pose2d.theta()+=2*M_PI;
 						}
 
 					}
@@ -646,7 +646,7 @@ namespace NS_Sgbot
 		map_init_count = 0;
 		update_map_thread = boost::thread(
 				boost::bind(&SgbotApplication::updateMapLoop, this, map_update_frequency_));
-		match_map_thread = boost::thread(boost::bind(&SgbotApplication::matchMapLoop, this, 50));
+		match_map_thread = boost::thread(boost::bind(&SgbotApplication::matchMapLoop, this, 100));
 	}
 
 	void SgbotApplication::quit()
