@@ -417,6 +417,7 @@ namespace NS_Sgbot
 		}
 		MatchPoint match_point;
 		match_point.count = max_value;
+		match_point.theta = theta;
 		match_point.distance = index-map_width_/2;
 		return match_point;
 	}
@@ -501,8 +502,8 @@ namespace NS_Sgbot
 	{
 		std::vector<MatchPoint> points;
 		points.resize(0);
-		float end_theta=DEG2RAD(-120);
-		float delta_theta = DEG2RAD(-1);
+		float end_theta=DEG2RAD(180);
+		float delta_theta = DEG2RAD(1);
 		float theta=0;
 
 		for(theta=0;theta<end_theta;theta+=delta_theta)
@@ -522,17 +523,17 @@ namespace NS_Sgbot
 		float turn_theta = sgbot::math::fabs(match_point.theta);
 		if(theta>0)
 		{
-		if(match_point.distance<0)
-			turn_theta = turn_theta-M_PI;
+			if(match_point.distance<0)
+				turn_theta = M_PI-turn_theta;
+			else
+				turn_theta = -turn_theta;
 		}
 		else
 		{
-			if(match_point.distance>0)
-				turn_theta = -turn_theta;
-			else
-				turn_theta = M_PI-turn_theta;
+			if(match_point.distance<0)
+				turn_theta = turn_theta-M_PI;
 		}
-
+		DBG_PRINTF("turn theta =%f\n", RAD2DEG(turn_theta));
 		makeTurn(turn_theta);
 	}
 
