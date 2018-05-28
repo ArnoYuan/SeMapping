@@ -428,7 +428,7 @@ namespace NS_Sgbot
 		sgbot::Velocity2D velocity2d;
 		odom_pose_cli->call(origin_odom);
 		float end_theta = origin_odom.pose2d.theta()+theta;
-		DBG_PRINTF("[origin:%f][end_theta=%f]\n", origin_odom.pose2d.theta(), end_theta);
+		DBG_PRINTF("[origin:%f][end_theta=%f]\n", RAD2DEG(origin_odom.pose2d.theta()), RAD2DEG(end_theta));
 		for(;;)
 		{
 			sgbot::Odometry odom;
@@ -447,12 +447,14 @@ namespace NS_Sgbot
 
 					if(odom.pose2d.theta()>=end_theta)
 					{
+						DBG_PRINTF("[cur theta=%f]\n", RAD2DEG(odom.pose2d.theta()));
 						for(;;)
 						{
 							if(odom_pose_cli->call(odom))
 							{
 								if(odom.velocity2d.angular==0&&odom.velocity2d.linear==0)
 								{
+
 									return;
 								}
 							}
@@ -460,7 +462,7 @@ namespace NS_Sgbot
 							velocity2d.angular = 0;
 							velocity2d.linear = 0;
 							twist_pub->publish(velocity2d);
-							NS_NaviCommon::delay(500);
+							NS_NaviCommon::delay(10);
 						}
 					}
 				}
@@ -476,6 +478,7 @@ namespace NS_Sgbot
 					}
 					if(odom.pose2d.theta()<=end_theta)
 					{
+						DBG_PRINTF("[cur theta=%f]\n", RAD2DEG(odom.pose2d.theta()));
 						for(;;)
 						{
 							if(odom_pose_cli->call(odom))
@@ -489,12 +492,12 @@ namespace NS_Sgbot
 							velocity2d.angular = 0;
 							velocity2d.linear = 0;
 							twist_pub->publish(velocity2d);
-							NS_NaviCommon::delay(500);
+							NS_NaviCommon::delay(10);
 						}
 					}
 				}
 			}
-			NS_NaviCommon::delay(500);
+			NS_NaviCommon::delay(10);
 		}
 	}
 
@@ -535,6 +538,7 @@ namespace NS_Sgbot
 		}
 		DBG_PRINTF("turn theta =%f\n", RAD2DEG(turn_theta));
 		makeTurn(turn_theta);
+		DBG_PRINTF("search wall ok!");
 	}
 
 	void SgbotApplication::run()
