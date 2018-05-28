@@ -227,6 +227,7 @@ namespace NS_Sgbot
 		else if(map_init_step==2)
 		{
 			MatchPoint match_point = matchMapLaser(scan, 0);
+			DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
 			if(abs(match_point_.count-match_point.count)>match_point_threshold)
 			{
 				map_init_step=3;
@@ -456,7 +457,7 @@ namespace NS_Sgbot
 		{
 			y_values[i] = 0;
 		}
-
+		int max_value = 0;
 		float angle = scan.angle_min;
 		for(i=0;i<scan.ranges.size();i++)
 		{
@@ -465,22 +466,19 @@ namespace NS_Sgbot
 			{
 				int y = distance*sgbot::math::sin(angle)/map_resolution_+map_height_/2;
 				y_values[y]++;
+				if(max_value<y_values[y])
+				{
+					max_value = y_values[y];
+					index = i;
+				}
 			}
 			angle+=scan.angle_increment;
 		}
 
-		int max_value = y_values[0];
-		for(i=0;i<y_values.size();i++)
-		{
-			if(max_value<y_values[i])
-			{
-				max_value = y_values[i];
-				index = i;
-			}
-		}
+
 		MatchPoint match_point;
 		match_point.count = max_value;
-		match_point.distance = i-map_height_/2;
+		match_point.distance = index-map_height_/2;
 
 		return match_point;
 	}
