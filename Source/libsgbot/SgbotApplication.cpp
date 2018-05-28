@@ -475,7 +475,7 @@ namespace NS_Sgbot
 							velocity2d.angular = 0;
 							velocity2d.linear = 0;
 							twist_pub->publish(velocity2d);
-							NS_NaviCommon::delay(10);
+							NS_NaviCommon::delay(30);
 						}
 					}
 				}
@@ -505,12 +505,12 @@ namespace NS_Sgbot
 							velocity2d.angular = 0;
 							velocity2d.linear = 0;
 							twist_pub->publish(velocity2d);
-							NS_NaviCommon::delay(10);
+							NS_NaviCommon::delay(30);
 						}
 					}
 				}
 			}
-			NS_NaviCommon::delay(10);
+			NS_NaviCommon::delay(30);
 		}
 	}
 
@@ -594,7 +594,7 @@ namespace NS_Sgbot
 		map_init_count = 0;
 		update_map_thread = boost::thread(
 				boost::bind(&SgbotApplication::updateMapLoop, this, map_update_frequency_));
-		match_map_thread = boost::thread(boost::bind(&SgbotApplication::matchMapLoop, this, 100));
+		match_map_thread = boost::thread(boost::bind(&SgbotApplication::matchMapLoop, this, 50));
 	}
 
 	void SgbotApplication::quit()
