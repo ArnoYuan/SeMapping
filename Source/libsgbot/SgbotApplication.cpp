@@ -231,8 +231,8 @@ namespace NS_Sgbot
 		else
 		{
 			boost::mutex::scoped_lock map_mutex(map_lock);
-
-			laser_scan_ = scan;
+			if(map_init_count==19)
+				laser_scan_ = scan;
 			map_init_count++;
 			DBG_PRINTF("laser init scan :%d\n", map_init_count);
 
@@ -393,7 +393,8 @@ namespace NS_Sgbot
 			float distance = scan.ranges[i];
 			if(distance>scan.range_min&&distance<scan.range_max)
 			{
-				int x = scan.ranges[distance*sgbot::math::cos(angle)]/map_resolution_+map_width_/2;
+				int x = distance*sgbot::math::cos(angle)/map_resolution_+map_width_/2;
+
 				x_values[x]++;
 			}
 			angle += scan.angle_increment;
@@ -489,11 +490,13 @@ namespace NS_Sgbot
 		float end_theta=DEG2RAD(120);
 		float delta_theta = DEG2RAD(1);
 		float theta=0;
+
 		for(theta=0;theta<end_theta;theta+=delta_theta)
 		{
 			points.push_back(matchMapLaser(scan, theta));
 		}
 		MatchPoint match_point=points[0];
+
 		for(int i=0;i<points.size();i++)
 		{
 			if(match_point.count<points[i].count)
