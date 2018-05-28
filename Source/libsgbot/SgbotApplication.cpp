@@ -501,11 +501,11 @@ namespace NS_Sgbot
 	{
 		std::vector<MatchPoint> points;
 		points.resize(0);
-		float end_theta=DEG2RAD(120);
-		float delta_theta = DEG2RAD(1);
+		float end_theta=DEG2RAD(-120);
+		float delta_theta = DEG2RAD(-1);
 		float theta=0;
 
-		for(theta=0;theta<end_theta;theta-=delta_theta)
+		for(theta=0;theta<end_theta;theta+=delta_theta)
 		{
 			points.push_back(matchMapLaser(scan, theta));
 		}
@@ -533,7 +533,7 @@ namespace NS_Sgbot
 				turn_theta = M_PI-turn_theta;
 		}
 
-		makeTurn(sgbot::math::fabs(match_point.theta));
+		makeTurn(turn_theta);
 	}
 
 	void SgbotApplication::run()
