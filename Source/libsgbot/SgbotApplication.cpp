@@ -398,10 +398,11 @@ namespace NS_Sgbot
 				x_values[x]++;
 			}
 			angle += scan.angle_increment;
+			if(angle<-M_PI)
+				angle+=2*M_PI;
+
 			if(angle>M_PI)
-			{
 				angle-=2*M_PI;
-			}
 		}
 		int index = 0;
 		int max_value = 0;
@@ -416,9 +417,7 @@ namespace NS_Sgbot
 		}
 		MatchPoint match_point;
 		match_point.count = max_value;
-		match_point.distance = index-map.height_/2;
-		match_point.theta = theta;
-
+		match_point.distance = index-map_width_/2;
 		return match_point;
 	}
 
@@ -520,6 +519,20 @@ namespace NS_Sgbot
 			}
 		}
 		DBG_PRINTF("[count=%d][theta=%f][distance=%d]\n", match_point.count, RAD2DEG(match_point.theta), match_point.distance);
+		float turn_theta = sgbot::math::fabs(match_point.theta);
+		if(theta>0)
+		{
+		if(match_point.distance<0)
+			turn_theta = turn_theta-M_PI;
+		}
+		else
+		{
+			if(match_point.distance>0)
+				turn_theta = -turn_theta;
+			else
+				turn_theta = M_PI-turn_theta;
+		}
+
 		makeTurn(sgbot::math::fabs(match_point.theta));
 	}
 
