@@ -425,8 +425,10 @@ namespace NS_Sgbot
 	void SgbotApplication::makeTurn(float theta)
 	{
 		sgbot::Odometry origin_odom;
+		sgbot::Velocity2D velocity2d;
 		odom_pose_cli->call(origin_odom);
 		float end_theta = origin_odom.pose2d.theta()+theta;
+		DBG_PRINTF("[origin:%f][end_theta=%f]\n", origin_odom.pose2d.theta(), end_theta);
 		for(;;)
 		{
 			sgbot::Odometry odom;
@@ -434,8 +436,15 @@ namespace NS_Sgbot
 			{
 				if(theta>0)
 				{
-					if(odom.pose2d.theta()<origin_odom.pose2d.theta())
-						odom.pose2d.theta()+=2*M_PI;
+					velocity2d.angular = 0.4;
+					velocity2d.linear = 0;
+					twist_pub->publish(velocity2d);
+					if(origin_odom.pose2d.theta()>0)
+					{
+						if(odom.pose2d.theta()<0)
+							odom.pose2d.theta()+=2*M_PI;
+					}
+
 					if(odom.pose2d.theta()>=end_theta)
 					{
 						for(;;)
@@ -447,18 +456,24 @@ namespace NS_Sgbot
 									return;
 								}
 							}
-							sgbot::Velocity2D velocity2d;
+
 							velocity2d.angular = 0;
 							velocity2d.linear = 0;
 							twist_pub->publish(velocity2d);
-							NS_NaviCommon::delay(50);
+							NS_NaviCommon::delay(500);
 						}
 					}
 				}
 				else
 				{
-					if(odom.pose2d.theta()>origin_odom.pose2d.theta())
-						odom.pose2d.theta()-=2*M_PI;
+					velocity2d.angular = -0.4;
+					velocity2d.linear = 0;
+					twist_pub->publish(velocity2d);
+					if(origin_odom.pose2d.theta()<0)
+					{
+						if(odom.pose2d.theta()>0)
+							odom.pose2d.theta()-=2*M_PI;
+					}
 					if(odom.pose2d.theta()<=end_theta)
 					{
 						for(;;)
@@ -470,16 +485,16 @@ namespace NS_Sgbot
 									return;
 								}
 							}
-							sgbot::Velocity2D velocity2d;
+
 							velocity2d.angular = 0;
 							velocity2d.linear = 0;
 							twist_pub->publish(velocity2d);
-							NS_NaviCommon::delay(50);
+							NS_NaviCommon::delay(500);
 						}
 					}
 				}
 			}
-			NS_NaviCommon::delay(50);
+			NS_NaviCommon::delay(500);
 		}
 	}
 
@@ -491,7 +506,7 @@ namespace NS_Sgbot
 		float delta_theta = DEG2RAD(1);
 		float theta=0;
 
-		for(theta=0;theta<end_theta;theta+=delta_theta)
+		for(theta=0;theta<end_theta;theta-=delta_theta)
 		{
 			points.push_back(matchMapLaser(scan, theta));
 		}
@@ -505,7 +520,7 @@ namespace NS_Sgbot
 			}
 		}
 		DBG_PRINTF("[count=%d][theta=%f][distance=%d]\n", match_point.count, RAD2DEG(match_point.theta), match_point.distance);
-		makeTurn(-match_point.theta);
+		makeTurn(sgbot::math::fabs(match_point.theta));
 	}
 
 	void SgbotApplication::run()
