@@ -374,7 +374,7 @@ namespace NS_Sgbot
 			if(map_inited==0)
 			{
 				boost::mutex::scoped_lock map_mutex(map_lock);
-				DBG_PRINTF("map_init_count=%d", map_init_count);
+				//DBG_PRINTF("map_init_count=%d", map_init_count);
 				if(map_init_count>=20)
 				{
 					DBG_PRINTF("matchMap ...\n");
@@ -383,6 +383,7 @@ namespace NS_Sgbot
 					return;
 				}
 			}
+			r.sleep();
 		}
 	}
 
