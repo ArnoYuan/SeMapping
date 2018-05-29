@@ -94,7 +94,7 @@ namespace NS_Sgbot
 		min_update_distance_ = parameter.getParameter("min_udpate_distance", 0.4f);
 
 
-		match_point_threshold = parameter.getParameter("match_point_threshold", 30);
+		match_point_threshold = parameter.getParameter("match_point_threshold", 20);
 		match_angular_vel = parameter.getParameter("match_angular_vle", 0.4f);
 
 /*
@@ -406,7 +406,7 @@ namespace NS_Sgbot
 				twist_pub->publish(velocity2d);
 				if(odom_pose_cli->call(odom))
 				{
-					if(origin_odom.pose2d.theta()>0)
+					if(origin_odom.pose2d.theta()>=0)
 					{
 						if(odom.pose2d.theta()<0)
 						{
