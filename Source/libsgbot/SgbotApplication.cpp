@@ -229,7 +229,7 @@ namespace NS_Sgbot
 		{
 			MatchPoint match_point = matchMapLaser(scan, 0);
 			//DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
-			if(abs(match_point_.count-match_point.count)>match_point_threshold)
+			if(abs(match_point_.count-match_point.count)<match_point_threshold)
 			{
 				map_init_step=3;
 				DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
