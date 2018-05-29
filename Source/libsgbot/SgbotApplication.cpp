@@ -221,7 +221,7 @@ namespace NS_Sgbot
 			if(match_point_.count<match_point.count)
 			{
 				match_point_ = match_point;
-				//DBG_PRINTF("match_point[count%d]\n", match_point.count);
+				DBG_PRINTF("match_point[count%d]\n", match_point.count);
 			}
 			return;
 		}
@@ -232,7 +232,7 @@ namespace NS_Sgbot
 			if(abs(match_point_.count-match_point.count)>match_point_threshold)
 			{
 				map_init_step=3;
-				//DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
+				DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
 			}
 			else
 				return;
