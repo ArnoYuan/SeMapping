@@ -216,23 +216,23 @@ namespace NS_Sgbot
 		else if(map_init_step==1)
 		{
 			MatchPoint match_point = matchMapLaser(scan, 0);
-			DBG_PRINTF("[%f]match time,count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(), match_point.count);
+			//DBG_PRINTF("[%f]match time,count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(), match_point.count);
 			match_points_.push_back(match_point);
 			if(match_point_.count<match_point.count)
 			{
 				match_point_ = match_point;
-				DBG_PRINTF("match_point[count%d]\n", match_point.count);
+				//DBG_PRINTF("match_point[count%d]\n", match_point.count);
 			}
 			return;
 		}
 		else if(map_init_step==2)
 		{
 			MatchPoint match_point = matchMapLaser(scan, 0);
-			DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
+			//DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
 			if(abs(match_point_.count-match_point.count)>match_point_threshold)
 			{
 				map_init_step=3;
-				DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
+				//DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
 			}
 			else
 				return;
@@ -397,6 +397,7 @@ namespace NS_Sgbot
 		odom_pose_cli->call(origin_odom);
 		sgbot::Odometry odom;
 		sgbot::Velocity2D velocity2d;
+		DBG_PRINTF("origin_pose:[%f]\n", DEG2RAD(origin_odom.pose2d.theta()));
 		while(running)
 		{
 			if(map_init_step==1)
@@ -406,14 +407,17 @@ namespace NS_Sgbot
 				twist_pub->publish(velocity2d);
 				if(odom_pose_cli->call(odom))
 				{
+					DBG_PRINTF("odom pose:%f\n", DEG2RAD(odom.pose2d.theta()));
 					if(origin_odom.pose2d.theta()>=0)
 					{
 						if(odom.pose2d.theta()<0)
 						{
 							odom.pose2d.theta()+=2*M_PI;
+							DBG_PRINTF("tune theta:%f\n", DEG2RAD(odom.pose2d.theta()));
 						}
 
 					}
+
 					if(odom.pose2d.theta()-origin_odom.pose2d.theta()>=M_PI)
 					{
 						velocity2d.angular =0;
@@ -422,6 +426,7 @@ namespace NS_Sgbot
 						if(odom.velocity2d.angular==0&&odom.velocity2d.linear==0)
 						{
 							end_odom = odom;
+							DBG_PRINTF("map_init_step=2\n");
 							map_init_step = 2;
 						}
 					}
@@ -643,7 +648,7 @@ namespace NS_Sgbot
 		map_init_count = 0;
 		update_map_thread = boost::thread(
 				boost::bind(&SgbotApplication::updateMapLoop, this, map_update_frequency_));
-		match_map_thread = boost::thread(boost::bind(&SgbotApplication::matchMapLoop, this, 100));
+		match_map_thread = boost::thread(boost::bind(&SgbotApplication::matchMapLoop, this, 25));
 	}
 
 	void SgbotApplication::quit()
