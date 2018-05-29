@@ -472,7 +472,7 @@ namespace NS_Sgbot
 			float distance = scan.ranges[i];
 			if(distance>scan.range_min&&distance<scan.range_max)
 			{
-				int y = distance*sgbot::math::sin(angle)/map_resolution_+map_height_/2;
+				int y = (int)((distance*sgbot::math::sin(angle)/map_resolution_+map_height_/2)+0.5f);
 				y_values[y]++;
 				if(max_value<y_values[y])
 				{
