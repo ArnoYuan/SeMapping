@@ -216,7 +216,7 @@ namespace NS_Sgbot
 		else if(map_init_step==1)
 		{
 			MatchPoint match_point = matchMapLaser(scan, 0);
-			DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
+			DBG_PRINTF("[%f]match time,count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(), match_point.count);
 			match_points_.push_back(match_point);
 			if(match_point_.count<match_point.count)
 			{
