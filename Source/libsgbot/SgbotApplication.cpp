@@ -216,6 +216,7 @@ namespace NS_Sgbot
 		else if(map_init_step==1)
 		{
 			MatchPoint match_point = matchMapLaser(scan, 0);
+			DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
 			match_points_.push_back(match_point);
 			if(match_point_.count<match_point.count)
 			{
@@ -447,16 +448,14 @@ namespace NS_Sgbot
 
 	MatchPoint SgbotApplication::matchMapLaser(NS_DataType::LaserScan &scan, float theta)
 	{
-
-		std::vector<int> y_values;
+		int y_values[map_height_];
+		DBG_PRINTF("map_height:%d\n", map_height_);
+		//std::vector<int> y_values;
 		int i = 0;
-		y_values.resize(map_height_);
+		//y_values.resize(map_height_);
 		int index = 0;
 
-		for(i=0;i<y_values.size();i++)
-		{
-			y_values[i] = 0;
-		}
+		memset(y_values, 0, sizeof(y_values));
 		int max_value = 0;
 		float angle = scan.angle_min;
 		for(i=0;i<scan.ranges.size();i++)
