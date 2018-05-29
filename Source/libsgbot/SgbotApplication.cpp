@@ -397,7 +397,7 @@ namespace NS_Sgbot
 		odom_pose_cli->call(origin_odom);
 		sgbot::Odometry odom;
 		sgbot::Velocity2D velocity2d;
-		DBG_PRINTF("origin_pose:[%f]\n", DEG2RAD(origin_odom.pose2d.theta()));
+		DBG_PRINTF("origin_pose:[%f]\n", RAD2DEG(origin_odom.pose2d.theta()));
 		while(running)
 		{
 			if(map_init_step==1)
@@ -407,13 +407,13 @@ namespace NS_Sgbot
 				twist_pub->publish(velocity2d);
 				if(odom_pose_cli->call(odom))
 				{
-					DBG_PRINTF("odom pose:%f\n", DEG2RAD(odom.pose2d.theta()));
+					DBG_PRINTF("odom pose:%f\n", RAD2DEG(odom.pose2d.theta()));
 					if(origin_odom.pose2d.theta()>=0)
 					{
 						if(odom.pose2d.theta()<0)
 						{
 							odom.pose2d.theta()+=2*M_PI;
-							DBG_PRINTF("tune theta:%f\n", DEG2RAD(odom.pose2d.theta()));
+							DBG_PRINTF("tune theta:%f\n", RAD2DEG(odom.pose2d.theta()));
 						}
 
 					}
@@ -423,13 +423,17 @@ namespace NS_Sgbot
 						velocity2d.angular =0;
 						velocity2d.linear = 0;
 						twist_pub->publish(velocity2d);
-						if(odom.velocity2d.angular==0&&odom.velocity2d.linear==0)
+						//if(odom.velocity2d.angular==0&&odom.velocity2d.linear==0)
 						{
 							end_odom = odom;
 							DBG_PRINTF("map_init_step=2\n");
 							map_init_step = 2;
 						}
 					}
+				}
+				else
+				{
+					DBG_PRINTF("odom call failed.\n");
 				}
 			}
 			else if(map_init_step==2)
