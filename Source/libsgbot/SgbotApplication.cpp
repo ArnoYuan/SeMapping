@@ -46,7 +46,7 @@ namespace NS_Sgbot
 				"POSE", boost::bind(&SgbotApplication::poseService, this, _1));
 
 		display_pose_srv = new NS_Service::Server<sgbot::Pose2D>(
-				"DISPALY_POSE", boost::bind(&SgbotApplication::displayPoseService, this, _1));
+				"DISPLAY_POSE", boost::bind(&SgbotApplication::displayPoseService, this, _1));
 
 		display_map_srv = new NS_Service::Server<sgbot::Map2D>(
 				"DISPLAY_MAP", boost::bind(&SgbotApplication::displayMapService, this, _1));
