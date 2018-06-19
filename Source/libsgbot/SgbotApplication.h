@@ -73,6 +73,8 @@ namespace NS_Sgbot
 
 		    NS_DataSet::Publisher<sgbot::Velocity2D>* twist_pub;
 
+		    NS_DataSet::Publisher<int> *map_ready_pub;
+
 		    sgbot::tf::Transform2D map_to_odom_;
 		    //boost::mutex map_to_odom_lock_;
 		    boost::mutex map_lock;
@@ -125,6 +127,7 @@ namespace NS_Sgbot
 		    MatchPoint matchMapLaser(NS_DataType::LaserScan &scan, float theta);
 
 		    void matchMapLoop(double frequency);
+
 
 		    //void getMap(NS_DataType::OccupancyGrid& map, const sgbot::Map2D& map2d);
 		public:

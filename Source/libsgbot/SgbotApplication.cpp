@@ -54,6 +54,8 @@ namespace NS_Sgbot
 		twist_pub = new NS_DataSet::Publisher<sgbot::Velocity2D>(
 				"TWIST");
 
+		map_ready_pub = new NS_DataSet::Publisher<int>("MAP_READY");
+
 		map = sgbot::Map2D();
 
 	}
@@ -232,6 +234,8 @@ namespace NS_Sgbot
 			if(abs(match_point_.count-match_point.count)<match_point_threshold)
 			{
 				map_init_step=3;
+				int map_ready = 1;
+				map_ready_pub->publish(map_ready);
 				DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
 			}
 			else
