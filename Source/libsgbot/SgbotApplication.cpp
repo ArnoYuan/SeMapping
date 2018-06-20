@@ -234,8 +234,7 @@ namespace NS_Sgbot
 			if(abs(match_point_.count-match_point.count)<match_point_threshold)
 			{
 				map_init_step=3;
-				int map_ready = 1;
-				map_ready_pub->publish(map_ready);
+
 				DBG_PRINTF("[%f]find match point:count=%d\n",(NS_NaviCommon::Time::now()-timestamp).toSec(),match_point_.count);
 			}
 			else
@@ -454,6 +453,9 @@ namespace NS_Sgbot
 				velocity2d.angular = 0;
 				velocity2d.linear = 0;
 				twist_pub->publish(velocity2d);
+				NS_NaviCommon::delay(2000);
+				int map_ready = 1;
+				map_ready_pub->publish(map_ready);
 				return;
 			}
 			r.sleep();
