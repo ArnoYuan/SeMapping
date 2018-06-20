@@ -359,6 +359,7 @@ namespace NS_Sgbot
 
 			{
 				boost::mutex::scoped_lock map_mutex(map_lock);
+				DBG_PRINTF("map update loop");
 				if(mapping->hasUpdatedMap(update_map_level_))
 				{
 					sgbot::Map2D map2d = mapping->getMap(update_map_level_);
@@ -380,7 +381,7 @@ namespace NS_Sgbot
 						ret += sprintf(buf+ret, "[%f,%f,%f]",
 									odom_pose.pose2d.x(), odom_pose.pose2d.y(), odom_pose.pose2d.theta());
 						ret += sprintf(buf+ret, "[%f,%f]\n", odom_pose.velocity2d.linear, odom_pose.velocity2d.angular);
-						write(log_fd, buf, ret);
+						//write(log_fd, buf, ret);
 					}
 #endif
 				}
