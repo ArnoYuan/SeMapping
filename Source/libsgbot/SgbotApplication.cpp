@@ -155,7 +155,7 @@ namespace NS_Sgbot
 		if(!running)
 			return;
 		boost::mutex::scoped_lock map_mutex(map_lock);
-		printf("map service...\n");
+		printf("[%f]map service...\n", NS_NaviCommon::Time::now().toSec());
 		srv_map = map;
 		/*
 		if(map.info.width&&map.info.height)
@@ -230,7 +230,7 @@ namespace NS_Sgbot
 		else if(map_init_step==2)
 		{
 			MatchPoint match_point = matchMapLaser(scan, 0);
-			//DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
+			DBG_PRINTF("[%f]match time\n",(NS_NaviCommon::Time::now()-timestamp).toSec());
 			if(abs(match_point_.count-match_point.count)<match_point_threshold)
 			{
 				map_init_step=3;
@@ -292,7 +292,7 @@ namespace NS_Sgbot
 			return;
 		//boost::mutex::scoped_lock map_mutex(map_lock);
 		srv_pose = mapping->getPose();
-		DBG_PRINTF("[poseService][%f,%f,%f]\n", srv_pose.x(), srv_pose.y(), srv_pose.theta());
+		DBG_PRINTF("[%f][poseService][%f,%f,%f]\n", NS_NaviCommon::Time::now().toSec(),srv_pose.x(), srv_pose.y(), srv_pose.theta());
 		//srv_pose = pose_;
 	}
 
@@ -449,12 +449,14 @@ namespace NS_Sgbot
 			}
 			else if(map_init_step==3)
 			{
+				DBG_PRINTF("map init step == 3");
 				sgbot::Velocity2D velocity2d;
 				velocity2d.angular = 0;
 				velocity2d.linear = 0;
 				twist_pub->publish(velocity2d);
 				NS_NaviCommon::delay(2000);
 				int map_ready = 1;
+				DBG_PRINTF("publish map ready.");
 				map_ready_pub->publish(map_ready);
 				return;
 			}
