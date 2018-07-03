@@ -97,7 +97,7 @@ namespace NS_Sgbot
 
 
 		match_point_threshold = parameter.getParameter("match_point_threshold", 20);
-		match_angular_vel = parameter.getParameter("match_angular_vle", 0.4f);
+		match_angular_vel = parameter.getParameter("match_angular_vel", 0.4f);
 
 /*
 		DBG_PRINTF("-----------------------\n");
@@ -286,6 +286,7 @@ namespace NS_Sgbot
 	    }
 #endif
 	}
+
 	void SgbotApplication::poseService(sgbot::Pose2D &srv_pose)
 	{
 		if(!running)
@@ -363,6 +364,7 @@ namespace NS_Sgbot
 				{
 					sgbot::Map2D map2d = mapping->getMap(update_map_level_);
 					map = map2d;
+					display_map = map2d;
 					//getMap(map, map2d);
 					DBG_PRINTF("update map\n");
 #ifdef USE_POSE_LOG
@@ -384,10 +386,12 @@ namespace NS_Sgbot
 					}
 #endif
 				}
+				/*
 				if(mapping->hasUpdatedMap(display_map_level_))
 				{
 					display_map = mapping->getMap(display_map_level_);
 				}
+				*/
 			}
 			r.sleep();
 		}
